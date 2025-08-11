@@ -1,0 +1,54 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-recommended"
+  ],
+  "rules": {
+    "indentation": 2,
+    "string-quotes": "single",
+    "no-duplicate-selectors": true,
+    "color-hex-case": "lower",
+    "color-hex-length": "short",
+    "color-named": "never",
+    "selector-combinator-space-after": "always",
+    "selector-attribute-quotes": "always",
+    "selector-attribute-operator-space-before": "never",
+    "selector-attribute-operator-space-after": "never",
+    "selector-attribute-brackets-space-inside": "never",
+    "declaration-block-trailing-semicolon": "always",
+    "declaration-colon-space-before": "never",
+    "declaration-colon-space-after": "always",
+    "property-no-unknown": true,
+    "unit-no-unknown": true,
+    "shorthand-property-no-redundant-values": true,
+    "value-no-vendor-prefix": true,
+    "property-no-vendor-prefix": true,
+    "comment-word-disallowed-list": ["todo", "fixme"],
+    "max-nesting-depth": 4,
+    "selector-max-compound-selectors": 4,
+    "selector-max-id": 1,
+    "declaration-property-value-disallowed-list": {
+      "border": ["none"],
+      "border-top": ["none"],
+      "border-right": ["none"],
+      "border-bottom": ["none"],
+      "border-left": ["none"]
+    },
+    "at-rule-no-vendor-prefix": true,
+    "media-feature-name-no-vendor-prefix": true,
+    "number-leading-zero": "always",
+    "number-no-trailing-zeros": true,
+    "length-zero-no-unit": true,
+    "value-keyword-case": "lower",
+    "function-name-case": "lower",
+    "selector-pseudo-class-case": "lower",
+    "selector-pseudo-element-case": "lower",
+    "selector-type-case": "lower",
+    "at-rule-name-case": "lower",
+    "property-case": "lower"
+  },
+  "ignoreFiles": [
+    "assets/css/min/**/*.css",
+    "node_modules/**/*.css"
+  ]
+}

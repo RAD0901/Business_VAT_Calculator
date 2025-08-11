@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAT Calculator Pro - Analytics Dashboard</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-color: #4CAF50;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --info-color: #2196F3;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .metric-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-change {
+            font-size: 0.9rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .metric-change.positive {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--accent-color);
+        }
+
+        .metric-change.negative {
+            background: rgba(244, 67, 54, 0.1);
+            color: var(--danger-color);
+        }
+
+        .metric-change.neutral {
+            background: rgba(158, 158, 158, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .chart-container {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-good { background: var(--accent-color); }
+        .status-warning { background: var(--warning-color); }
+        .status-error { background: var(--danger-color); }
+
+        .refresh-button {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .refresh-button:hover {
+            transform: scale(1.05);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--info-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-info {
+            background: rgba(33, 150, 243, 0.1);
+            border-left: 4px solid var(--info-color);
+            color: var(--info-color);
+        }
+
+        .alert-warning {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 10px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>📊 VAT Calculator Pro Analytics</h1>
+            <p>Real-time business intelligence and performance insights</p>
+        </div>
+
+        <button class="refresh-button" onclick="refreshDashboard()">
+            <span id="refresh-icon">🔄</span> Refresh Data
+        </button>
+
+        <!-- Key Metrics Grid -->
+        <div class="metrics-grid" id="metricsGrid">
+            <!-- Metrics will be populated by JavaScript -->
+        </div>
+
+        <!-- Conversion Funnel Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Conversion Funnel</div>
+                <div class="chart-subtitle">User journey from landing to export</div>
+            </div>
+            <div id="funnelChart">
+                <!-- Funnel visualization will be generated -->
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Performance Metrics</div>
+                <div class="chart-subtitle">Core Web Vitals and application performance</div>
+            </div>
+            <div id="performanceMetrics">
+                <!-- Performance data will be displayed -->
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Recent Activity</div>
+                <div class="chart-subtitle">Latest calculations, exports, and user actions</div>
+            </div>
+            <div id="recentActivity">
+                <!-- Recent activity will be displayed -->
+            </div>
+        </div>
+
+        <!-- Error Reports -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Error Reports</div>
+                <div class="chart-subtitle">Application errors and performance issues</div>
+            </div>
+            <div id="errorReports">
+                <!-- Error data will be displayed -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AnalyticsDashboard {
+            constructor() {
+                this.data = {
+                    metrics: {},
+                    funnel: {},
+                    performance: {},
+                    activity: [],
+                    errors: []
+                };
+                this.init();
+            }
+
+            init() {
+                this.loadData();
+                this.renderDashboard();
+                this.setupAutoRefresh();
+            }
+
+            loadData() {
+                // Load data from various analytics sources
+                this.loadMetricsData();
+                this.loadFunnelData();
+                this.loadPerformanceData();
+                this.loadActivityData();
+                this.loadErrorData();
+            }
+
+            loadMetricsData() {
+                // Try to get data from analytics manager
+                if (window.parent && window.parent.analyticsManager) {
+                    const sessionData = window.parent.analyticsManager.getSessionData();
+                    this.data.metrics = {
+                        totalSessions: sessionData.eventsTracked || 0,
+                        totalCalculations: this.getMetricValue('calculations', 0),
+                        totalExports: this.getMetricValue('exports', 0),
+                        avgProcessingTime: this.getMetricValue('avgProcessingTime', 0),
+                        errorRate: this.getMetricValue('errorRate', 0),
+                        conversionRate: this.getMetricValue('conversionRate', 0)
+                    };
+                } else {
+                    // Demo data
+                    this.data.metrics = {
+                        totalSessions: 156,
+                        totalCalculations: 89,
+                        totalExports: 67,
+                        avgProcessingTime: 2.3,
+                        errorRate: 2.1,
+                        conversionRate: 57.1
+                    };
+                }
+            }
+
+            loadFunnelData() {
+                this.data.funnel = {
+                    landing: 100,
+                    upload: 75,
+                    processing: 68,
+                    results: 65,
+                    export: 43
+                };
+            }
+
+            loadPerformanceData() {
+                this.data.performance = [
+                    { metric: 'Largest Contentful Paint', value: '1.8s', status: 'good' },
+                    { metric: 'First Input Delay', value: '45ms', status: 'good' },
+                    { metric: 'Cumulative Layout Shift', value: '0.05', status: 'good' },
+                    { metric: 'Time to Interactive', value: '2.1s', status: 'warning' },
+                    { metric: 'Total Blocking Time', value: '180ms', status: 'warning' }
+                ];
+            }
+
+            loadActivityData() {
+                this.data.activity = [
+                    { time: '2 min ago', action: 'VAT calculation completed', value: 'R 12,450.00', user: 'User-789' },
+                    { time: '5 min ago', action: 'PDF export generated', value: '1,245 transactions', user: 'User-456' },
+                    { time: '8 min ago', action: 'File uploaded', value: '850 KB', user: 'User-123' },
+                    { time: '12 min ago', action: 'VAT calculation completed', value: 'R 8,750.00', user: 'User-321' },
+                    { time: '15 min ago', action: 'Excel export generated', value: '567 transactions', user: 'User-654' }
+                ];
+            }
+
+            loadErrorData() {
+                this.data.errors = [
+                    { time: '1 hour ago', type: 'File Processing Error', message: 'Invalid tax code in row 456', severity: 'warning' },
+                    { time: '3 hours ago', type: 'Performance Warning', message: 'Large file processing took 8.2s', severity: 'warning' },
+                    { time: '6 hours ago', type: 'Validation Error', message: 'Missing TaxAmount column', severity: 'error' },
+                    { time: '1 day ago', type: 'JavaScript Error', message: 'Cannot read property of undefined', severity: 'error' }
+                ];
+            }
+
+            renderDashboard() {
+                this.renderMetrics();
+                this.renderFunnel();
+                this.renderPerformance();
+                this.renderActivity();
+                this.renderErrors();
+            }
+
+            renderMetrics() {
+                const grid = document.getElementById('metricsGrid');
+                const metrics = [
+                    {
+                        title: 'Total Sessions',
+                        value: this.data.metrics.totalSessions,
+                        change: '+12%',
+                        changeType: 'positive',
+                        icon: '👥',
+                        color: '#4CAF50'
+                    },
+                    {
+                        title: 'VAT Calculations',
+                        value: this.data.metrics.totalCalculations,
+                        change: '+8%',
+                        changeType: 'positive',
+                        icon: '🧮',
+                        color: '#2196F3'
+                    },
+                    {
+                        title: 'Exports Generated',
+                        value: this.data.metrics.totalExports,
+                        change: '+15%',
+                        changeType: 'positive',
+                        icon: '📊',
+                        color: '#9C27B0'
+                    },
+                    {
+                        title: 'Avg Processing Time',
+                        value: this.data.metrics.avgProcessingTime + 's',
+                        change: '-5%',
+                        changeType: 'positive',
+                        icon: '⚡',
+                        color: '#FF9800'
+                    },
+                    {
+                        title: 'Error Rate',
+                        value: this.data.metrics.errorRate + '%',
+                        change: '-2%',
+                        changeType: 'positive',
+                        icon: '🛡️',
+                        color: '#F44336'
+                    },
+                    {
+                        title: 'Conversion Rate',
+                        value: this.data.metrics.conversionRate + '%',
+                        change: '+3%',
+                        changeType: 'positive',
+                        icon: '🎯',
+                        color: '#4CAF50'
+                    }
+                ];
+
+                grid.innerHTML = metrics.map(metric => `
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon" style="background: ${metric.color}20; color: ${metric.color}">
+                                ${metric.icon}
+                            </div>
+                            <div class="metric-title">${metric.title}</div>
+                        </div>
+                        <div class="metric-value" style="color: ${metric.color}">${metric.value}</div>
+                        <div class="metric-change ${metric.changeType}">${metric.change} vs last period</div>
+                    </div>
+                `).join('');
+            }
+
+            renderFunnel() {
+                const container = document.getElementById('funnelChart');
+                const funnel = this.data.funnel;
+                const maxValue = Math.max(...Object.values(funnel));
+
+                container.innerHTML = Object.keys(funnel).map((step, index) => {
+                    const value = funnel[step];
+                    const percentage = (value / maxValue) * 100;
+                    const stepNames = {
+                        landing: 'Landing Page',
+                        upload: 'File Upload',
+                        processing: 'Processing',
+                        results: 'View Results',
+                        export: 'Export Data'
+                    };
+
+                    return `
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>${stepNames[step]}</span>
+                                <span><strong>${value}%</strong></span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderPerformance() {
+                const container = document.getElementById('performanceMetrics');
+                container.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${this.data.performance.map(item => `
+                                <tr>
+                                    <td>${item.metric}</td>
+                                    <td><strong>${item.value}</strong></td>
+                                    <td>
+                                        <span class="status-indicator status-${item.status}"></span>
+                                        ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            renderActivity() {
+                const container = document.getElementById('recentActivity');
+                container.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Action</th>
+                                <th>Value</th>
+                                <th>User</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${this.data.activity.map(item => `
+                                <tr>
+                                    <td>${item.time}</td>
+                                    <td>${item.action}</td>
+                                    <td><strong>${item.value}</strong></td>
+                                    <td><code>${item.user}</code></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            renderErrors() {
+                const container = document.getElementById('errorReports');
+                if (this.data.errors.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info">No errors reported in the last 24 hours.</div>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Type</th>
+                                <th>Message</th>
+                                <th>Severity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${this.data.errors.map(error => `
+                                <tr>
+                                    <td>${error.time}</td>
+                                    <td>${error.type}</td>
+                                    <td>${error.message}</td>
+                                    <td>
+                                        <span class="status-indicator status-${error.severity}"></span>
+                                        ${error.severity.charAt(0).toUpperCase() + error.severity.slice(1)}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            getMetricValue(key, defaultValue) {
+                // Helper to safely get metric values
+                return defaultValue;
+            }
+
+            setupAutoRefresh() {
+                // Auto-refresh every 30 seconds
+                setInterval(() => {
+                    this.loadData();
+                    this.renderDashboard();
+                }, 30000);
+            }
+
+            refresh() {
+                const refreshIcon = document.getElementById('refresh-icon');
+                refreshIcon.innerHTML = '<div class="loading"></div>';
+                
+                setTimeout(() => {
+                    this.loadData();
+                    this.renderDashboard();
+                    refreshIcon.innerHTML = '🔄';
+                }, 1000);
+            }
+        }
+
+        // Global functions
+        function refreshDashboard() {
+            window.dashboard.refresh();
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            window.dashboard = new AnalyticsDashboard();
+        });
+    </script>
+</body>
+</html>

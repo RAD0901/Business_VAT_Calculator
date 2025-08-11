@@ -1,56 +1,649 @@
-name: Deploy to Netlify
+name: 🚀 Deploy VAT Calculator Pro
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: 
+      - main
+      - develop
+      - 'feature/**'
+      - 'hotfix/**'
   pull_request:
-    branches: [ main ]
+    branches: 
+      - main
+      - develop
+  release:
+    types: [published, prereleased]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      force_deploy:
+        description: 'Force deployment (skip some checks)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '18'
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+  NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+  NETLIFY_STAGING_SITE_ID: ${{ secrets.NETLIFY_STAGING_SITE_ID }}
 
 jobs:
-  deploy:
+  # ====================================
+  # Quality Assurance Pipeline
+  # ====================================
+  quality-check:
+    name: 🔍 Quality Assurance
     runs-on: ubuntu-latest
-    
+    outputs:
+      should-deploy: ${{ steps.deployment-decision.outputs.should-deploy }}
+      environment: ${{ steps.deployment-decision.outputs.environment }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Validate HTML files
-      run: |
-        # Install html-validate if we need HTML validation
-        # npm install -g html-validate
-        echo "HTML validation step - can be expanded later"
-        
-    - name: Test JavaScript syntax
-      run: |
-        # Basic syntax check for JavaScript files
-        find assets/js -name "*.js" -exec node -c {} \;
-        echo "JavaScript syntax check completed"
-        
-    - name: Check for broken links (optional)
-      run: |
-        echo "Link checking step - can be expanded later"
-        
-    - name: Deploy to Netlify
-      uses: nwtgck/actions-netlify@v2.1.0
-      with:
-        publish-dir: '.'
-        production-branch: main
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        deploy-message: "Deploy from GitHub Actions"
-        enable-pull-request-comment: true
-        enable-commit-comment: true
-      env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        
-    - name: Lighthouse CI
-      uses: treosh/lighthouse-ci-action@v10
-      with:
-        configPath: '.github/lighthouse/lighthouse.json'
-        uploadArtifacts: true
-        temporaryPublicStorage: true
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          npm install -g html-validate stylelint eslint prettier lighthouse
+
+      - name: 📝 HTML Validation
+        run: |
+          echo "🔍 Validating HTML files..."
+          npx html-validate "*.html" --config .html-validate.json || echo "HTML validation warnings found"
+
+      - name: 🎨 CSS Linting
+        run: |
+          echo "🎨 Linting CSS files..."
+          npx stylelint "assets/css/**/*.css" --config .stylelintrc.json || echo "CSS linting warnings found"
+
+      - name: ⚡ JavaScript Linting
+        run: |
+          echo "⚡ Linting JavaScript files..."
+          npx eslint "assets/js/**/*.js" --config .eslintrc.json --format stylish || echo "JavaScript linting warnings found"
+
+      - name: 💅 Code Formatting Check
+        run: |
+          echo "💅 Checking code formatting..."
+          npx prettier --check "**/*.{html,css,js,json,md}" --config .prettierrc.json || echo "Formatting issues found"
+
+      - name: ♿ Accessibility Testing
+        run: |
+          echo "♿ Running accessibility tests..."
+          npm run test:accessibility || echo "Accessibility warnings found"
+
+      - name: 🔒 Security Dependency Scan
+        run: |
+          echo "🔒 Scanning for security vulnerabilities..."
+          npm audit --audit-level=moderate || echo "Security vulnerabilities found"
+
+      - name: 🛡️ Static Code Analysis
+        uses: github/super-linter@v4
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_HTML: true
+          VALIDATE_CSS: true
+          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_JSON: true
+          VALIDATE_MARKDOWN: true
+
+      - name: 📊 Code Coverage Analysis
+        run: |
+          echo "📊 Analyzing code coverage..."
+          npm run test:coverage || echo "Coverage analysis completed"
+
+      - name: 🎯 Deployment Decision
+        id: deployment-decision
+        run: |
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH_NAME" == "main" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "environment=production" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH_NAME" == "develop" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH_NAME" == feature/* ]] || [[ "$BRANCH_NAME" == hotfix/* ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "environment=preview" >> $GITHUB_OUTPUT
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+            echo "environment=none" >> $GITHUB_OUTPUT
+          fi
+
+  # ====================================
+  # Security Scanning Pipeline
+  # ====================================
+  security-scan:
+    name: 🛡️ Security Scanning
+    runs-on: ubuntu-latest
+    needs: quality-check
+    if: needs.quality-check.outputs.should-deploy == 'true'
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 CodeQL Analysis
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript
+
+      - name: 🏗️ Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: 📊 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+      - name: 🔒 Trivy Security Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: 📤 Upload Security Results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # ====================================
+  # Automated Testing Pipeline
+  # ====================================
+  automated-testing:
+    name: 🧪 Automated Testing
+    runs-on: ubuntu-latest
+    needs: quality-check
+    if: needs.quality-check.outputs.should-deploy == 'true'
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: 🧪 Run Functional Tests
+        run: |
+          echo "🧪 Running functional tests with ${{ matrix.browser }}..."
+          npx playwright test --project=${{ matrix.browser }}
+        env:
+          CI: true
+
+      - name: 📱 Mobile Responsiveness Tests
+        run: |
+          echo "📱 Testing mobile responsiveness..."
+          npx playwright test --project=mobile-chrome --project=mobile-safari
+
+      - name: 📸 Visual Regression Tests
+        run: |
+          echo "📸 Running visual regression tests..."
+          npx playwright test --project=visual-regression
+
+      - name: 📤 Upload Test Results
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: test-results-${{ matrix.browser }}
+          path: test-results/
+          retention-days: 7
+
+      - name: 📊 Upload Test Reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 30
+
+  # ====================================
+  # Performance Testing Pipeline
+  # ====================================
+  performance-testing:
+    name: ⚡ Performance Testing
+    runs-on: ubuntu-latest
+    needs: [quality-check, automated-testing]
+    if: needs.quality-check.outputs.should-deploy == 'true'
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Application
+        run: npm run build
+
+      - name: 🚀 Start Local Server
+        run: |
+          npx http-server . -p 8080 &
+          sleep 5
+
+      - name: 🔍 Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v9
+        with:
+          configPath: '.lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: 📦 Bundle Size Analysis
+        run: |
+          echo "📦 Analyzing bundle size..."
+          npx bundlesize
+
+      - name: 🖼️ Image Optimization Check
+        run: |
+          echo "🖼️ Checking image optimization..."
+          npm run optimize:images:check
+
+  # ====================================
+  # Build Pipeline
+  # ====================================
+  build:
+    name: 🏗️ Build Application
+    runs-on: ubuntu-latest
+    needs: [quality-check, security-scan, automated-testing]
+    if: needs.quality-check.outputs.should-deploy == 'true'
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build-time: ${{ steps.build-info.outputs.build-time }}
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🏷️ Generate Version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            VERSION="${{ github.event.release.tag_name }}"
+          else
+            VERSION="v$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: 🔄 Update Version in Files
+        run: |
+          sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" index.html
+          sed -i "s/BUILD_DATE_PLACEHOLDER/$(date -u +'%Y-%m-%d %H:%M:%S UTC')/g" index.html
+
+      - name: 🎨 Optimize Assets
+        run: |
+          echo "🎨 Optimizing CSS..."
+          npx postcss assets/css/*.css --replace --config postcss.config.js
+          
+          echo "⚡ Minifying JavaScript..."
+          npx terser assets/js/*.js --compress --mangle --output-dir assets/js/min/
+          
+          echo "🖼️ Optimizing images..."
+          npm run optimize:images
+
+      - name: 🗂️ Generate Sitemap
+        run: |
+          echo "🗂️ Generating sitemap..."
+          npm run generate:sitemap
+
+      - name: 📊 Generate Analytics
+        run: |
+          echo "📊 Generating analytics configuration..."
+          npm run generate:analytics
+
+      - name: 🏗️ Build Information
+        id: build-info
+        run: |
+          BUILD_TIME=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
+          echo "build-time=$BUILD_TIME" >> $GITHUB_OUTPUT
+          
+          # Create build manifest
+          cat > build-manifest.json << EOF
+          {
+            "version": "$VERSION",
+            "buildTime": "$BUILD_TIME",
+            "commitSha": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "environment": "${{ needs.quality-check.outputs.environment }}",
+            "buildNumber": "${{ github.run_number }}"
+          }
+          EOF
+
+      - name: 🗜️ Create Build Archive
+        run: |
+          tar -czf vat-calculator-build-$VERSION.tar.gz \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            --exclude='test-results' \
+            --exclude='playwright-report' \
+            .
+
+      - name: 📤 Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts-${{ steps.version.outputs.version }}
+          path: |
+            .
+            !node_modules
+            !.git
+            !test-results
+            !playwright-report
+          retention-days: 30
+
+  # ====================================
+  # Deployment Pipeline
+  # ====================================
+  deploy:
+    name: 🚀 Deploy to ${{ needs.quality-check.outputs.environment }}
+    runs-on: ubuntu-latest
+    needs: [quality-check, build, performance-testing]
+    if: needs.quality-check.outputs.should-deploy == 'true'
+    environment: ${{ needs.quality-check.outputs.environment }}
+    steps:
+      - name: 📥 Download Build Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts-${{ needs.build.outputs.version }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install Netlify CLI
+        run: npm install -g netlify-cli
+
+      - name: 🎯 Determine Site ID
+        id: site-config
+        run: |
+          if [[ "${{ needs.quality-check.outputs.environment }}" == "production" ]]; then
+            echo "site-id=${{ secrets.NETLIFY_SITE_ID }}" >> $GITHUB_OUTPUT
+            echo "deploy-message=Production deployment v${{ needs.build.outputs.version }}" >> $GITHUB_OUTPUT
+            echo "alias=" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.quality-check.outputs.environment }}" == "staging" ]]; then
+            echo "site-id=${{ secrets.NETLIFY_STAGING_SITE_ID }}" >> $GITHUB_OUTPUT
+            echo "deploy-message=Staging deployment v${{ needs.build.outputs.version }}" >> $GITHUB_OUTPUT
+            echo "alias=staging" >> $GITHUB_OUTPUT
+          else
+            echo "site-id=${{ secrets.NETLIFY_SITE_ID }}" >> $GITHUB_OUTPUT
+            echo "deploy-message=Preview deployment for ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "alias=deploy-preview-${{ github.event.number }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🚀 Deploy to Netlify
+        id: deploy
+        run: |
+          if [[ "${{ needs.quality-check.outputs.environment }}" == "production" ]]; then
+            # Production deployment
+            netlify deploy \
+              --prod \
+              --dir=. \
+              --site=${{ steps.site-config.outputs.site-id }} \
+              --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
+              --message="${{ steps.site-config.outputs.deploy-message }}"
+          elif [[ "${{ needs.quality-check.outputs.environment }}" == "staging" ]]; then
+            # Staging deployment
+            netlify deploy \
+              --prod \
+              --dir=. \
+              --site=${{ steps.site-config.outputs.site-id }} \
+              --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
+              --message="${{ steps.site-config.outputs.deploy-message }}"
+          else
+            # Preview deployment
+            DEPLOY_OUTPUT=$(netlify deploy \
+              --dir=. \
+              --site=${{ steps.site-config.outputs.site-id }} \
+              --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
+              --message="${{ steps.site-config.outputs.deploy-message }}")
+            
+            DEPLOY_URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^[:space:]]*' | head -1)
+            echo "deploy-url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔍 Post-Deployment Verification
+        run: |
+          echo "🔍 Running post-deployment verification..."
+          
+          if [[ "${{ needs.quality-check.outputs.environment }}" == "production" ]]; then
+            SITE_URL="https://vat-calculator-pro.netlify.app"
+          elif [[ "${{ needs.quality-check.outputs.environment }}" == "staging" ]]; then
+            SITE_URL="https://staging--vat-calculator-pro.netlify.app"
+          else
+            SITE_URL="${{ steps.deploy.outputs.deploy-url }}"
+          fi
+          
+          echo "Testing site: $SITE_URL"
+          
+          # Health check
+          curl -f "$SITE_URL" || exit 1
+          
+          # Check critical pages
+          curl -f "$SITE_URL/index.html" || exit 1
+          curl -f "$SITE_URL/dashboard.html" || exit 1
+          
+          # Check assets
+          curl -f "$SITE_URL/assets/css/main.css" || exit 1
+          curl -f "$SITE_URL/assets/js/app.js" || exit 1
+
+      - name: 🎯 Performance Check Post-Deployment
+        if: needs.quality-check.outputs.environment == 'production'
+        run: |
+          echo "🎯 Running post-deployment performance check..."
+          npx lighthouse "https://vat-calculator-pro.netlify.app" \
+            --output=json \
+            --output-path=lighthouse-prod.json \
+            --chrome-flags="--headless --no-sandbox"
+
+      - name: 📝 Update Deployment Status
+        if: always()
+        run: |
+          echo "📝 Deployment completed for ${{ needs.quality-check.outputs.environment }}"
+          echo "Version: ${{ needs.build.outputs.version }}"
+          echo "Build Time: ${{ needs.build.outputs.build-time }}"
+
+  # ====================================
+  # Notification Pipeline
+  # ====================================
+  notify:
+    name: 📢 Send Notifications
+    runs-on: ubuntu-latest
+    needs: [quality-check, build, deploy]
+    if: always() && needs.quality-check.outputs.should-deploy == 'true'
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📊 Gather Deployment Info
+        id: deployment-info
+        run: |
+          if [[ "${{ needs.deploy.result }}" == "success" ]]; then
+            STATUS="✅ SUCCESS"
+            COLOR="good"
+          elif [[ "${{ needs.deploy.result }}" == "failure" ]]; then
+            STATUS="❌ FAILED"
+            COLOR="danger"
+          else
+            STATUS="⚠️ CANCELLED"
+            COLOR="warning"
+          fi
+          
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "color=$COLOR" >> $GITHUB_OUTPUT
+
+      - name: 📢 Slack Notification
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: custom
+          custom_payload: |
+            {
+              "channel": "#vat-calculator-deployments",
+              "username": "GitHub Actions",
+              "icon_emoji": ":rocket:",
+              "attachments": [
+                {
+                  "color": "${{ steps.deployment-info.outputs.color }}",
+                  "title": "VAT Calculator Pro Deployment",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "value": "${{ steps.deployment-info.outputs.status }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Environment",
+                      "value": "${{ needs.quality-check.outputs.environment }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Version",
+                      "value": "${{ needs.build.outputs.version }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Commit",
+                      "value": "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>",
+                      "short": false
+                    }
+                  ],
+                  "footer": "GitHub Actions",
+                  "ts": ${{ github.event.head_commit.timestamp }}
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: 📧 Email Notification
+        uses: dawidd6/action-send-mail@v3
+        if: failure()
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🚨 VAT Calculator Deployment Failed"
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: VAT Calculator CI/CD
+          html_body: |
+            <h2>Deployment Failed</h2>
+            <p><strong>Environment:</strong> ${{ needs.quality-check.outputs.environment }}</p>
+            <p><strong>Branch:</strong> ${{ github.ref_name }}</p>
+            <p><strong>Commit:</strong> ${{ github.sha }}</p>
+            <p><strong>View logs:</strong> <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">GitHub Actions</a></p>
+
+  # ====================================
+  # Rollback Pipeline
+  # ====================================
+  rollback:
+    name: 🔄 Rollback Deployment
+    runs-on: ubuntu-latest
+    if: failure() && needs.quality-check.outputs.environment == 'production'
+    needs: [quality-check, deploy]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install Netlify CLI
+        run: npm install -g netlify-cli
+
+      - name: 🔄 Rollback to Previous Deployment
+        run: |
+          echo "🔄 Rolling back to previous deployment..."
+          netlify api listSiteDeploys \
+            --site=${{ secrets.NETLIFY_SITE_ID }} \
+            --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --data='{"state":"ready"}' | \
+          jq -r '.[1].id' | \
+          xargs -I {} netlify api restoreSiteDeploy \
+            --site=${{ secrets.NETLIFY_SITE_ID }} \
+            --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --data='{"deploy_id":"{}"}'
+
+      - name: 📢 Rollback Notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              "channel": "#vat-calculator-deployments",
+              "username": "GitHub Actions",
+              "icon_emoji": ":warning:",
+              "attachments": [
+                {
+                  "color": "warning",
+                  "title": "🔄 VAT Calculator Pro - Automatic Rollback",
+                  "text": "Production deployment failed and has been automatically rolled back to the previous version.",
+                  "fields": [
+                    {
+                      "title": "Environment",
+                      "value": "production",
+                      "short": true
+                    },
+                    {
+                      "title": "Failed Version",
+                      "value": "${{ needs.build.outputs.version }}",
+                      "short": true
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

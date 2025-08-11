@@ -2048,6 +2048,7 @@
                         <li><a href="#/about" class="nav-link" data-page="about">About</a></li>
                         <li><a href="#/settings" class="nav-link" data-page="settings">Settings</a></li>
                         <li><a href="#/history" class="nav-link" data-page="history">History</a></li>
+                        <li><a href="dashboard.html" class="nav-link" target="_blank" title="View Analytics Dashboard">📊 Analytics</a></li>
                     </ul>
                     <div class="mobile-menu-toggle" onclick="toggleMobileMenu()">
                         <span></span>
@@ -5340,7 +5341,10 @@ Transaction Count: ${calc.transactionCount}`);
         // Integrate with enhanced calculateVAT function
         const originalEnhancedCalculateVAT = calculateVAT;
         calculateVAT = function(data, filename) {
+            const startTime = performance.now();
             const result = originalEnhancedCalculateVAT(data, filename);
+            const endTime = performance.now();
+            const processingTime = endTime - startTime;
             
             if (result && window.detailedExportManager) {
                 try {
@@ -5354,9 +5358,232 @@ Transaction Count: ${calc.transactionCount}`);
                     console.error('Error setting detailed export data:', error);
                 }
             }
+
+            // Track calculation for analytics and BI
+            if (result) {
+                // Track with analytics manager
+                if (window.analyticsManager) {
+                    window.analyticsManager.trackCalculation(result, processingTime);
+                }
+
+                // Track with performance monitor
+                if (window.performanceMonitor) {
+                    window.performanceMonitor.trackFileProcessing(
+                        data.length * 500, // Estimate file size
+                        processingTime,
+                        data.length
+                    );
+                }
+
+                // Record for business intelligence
+                if (window.biDashboard) {
+                    document.dispatchEvent(new CustomEvent('vatCalculationComplete', {
+                        detail: {
+                            ...result,
+                            processingTime,
+                            transactionCount: data.length,
+                            fileSize: data.length * 500,
+                            sessionId: window.analyticsManager?.sessionData?.sessionId || 'unknown',
+                            taxCodes: result.taxCodeBreakdown ? Object.keys(result.taxCodeBreakdown) : []
+                        }
+                    }));
+                }
+            }
             
             return result;
         };
+
+        // Track export events
+        if (typeof exportToPDF === 'function') {
+            const originalExportToPDF = exportToPDF;
+            exportToPDF = function(data) {
+                const result = originalExportToPDF(data);
+                
+                // Track export event
+                if (window.analyticsManager && data) {
+                    window.analyticsManager.trackExport('pdf', data.vatPayable || 0, 'standard');
+                }
+
+                if (window.biDashboard) {
+                    document.dispatchEvent(new CustomEvent('vatExportComplete', {
+                        detail: {
+                            format: 'pdf',
+                            vatAmount: data.vatPayable || 0,
+                            sessionId: window.analyticsManager?.sessionData?.sessionId || 'unknown'
+                        }
+                    }));
+                }
+
+                return result;
+            };
+        }
+    </script>
+
+    <!-- Analytics and Monitoring Scripts -->
+    <script src="assets/js/analytics-manager.js"></script>
+    <script src="assets/js/error-tracker.js"></script>
+    <script src="assets/js/performance-monitor.js"></script>
+    <script src="assets/js/business-intelligence.js"></script>
+
+    <!-- Analytics Configuration and Initialization -->
+    <script>
+        // Configuration for analytics components
+        window.VAT_ANALYTICS_CONFIG = {
+            gaId: 'G-XXXXXXXXXX', // Replace with actual Google Analytics 4 ID
+            debug: window.location.hostname === 'localhost',
+            environment: window.location.hostname === 'localhost' ? 'development' : 'production',
+            enableUserConsent: true,
+            privacyMode: true
+        };
+
+        window.ERROR_TRACKING_CONFIG = {
+            sentryDsn: null, // Add Sentry DSN if available
+            environment: window.location.hostname === 'localhost' ? 'development' : 'production',
+            enableUserReporting: true,
+            enableLogging: true
+        };
+
+        // Initialize analytics after page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure all other scripts are loaded
+            setTimeout(() => {
+                try {
+                    // Initialize analytics manager
+                    if (typeof AnalyticsManager !== 'undefined') {
+                        window.analyticsManager = new AnalyticsManager(window.VAT_ANALYTICS_CONFIG);
+                        console.log('Analytics Manager initialized');
+                    }
+
+                    // Initialize error tracker
+                    if (typeof ErrorTrackingService !== 'undefined') {
+                        window.errorTracker = new ErrorTrackingService(window.ERROR_TRACKING_CONFIG);
+                        console.log('Error Tracker initialized');
+                    }
+
+                    // Initialize performance monitor
+                    if (typeof PerformanceMonitor !== 'undefined') {
+                        window.performanceMonitor = new PerformanceMonitor();
+                        console.log('Performance Monitor initialized');
+                    }
+
+                    // Initialize business intelligence dashboard
+                    if (typeof BusinessIntelligenceDashboard !== 'undefined') {
+                        window.biDashboard = new BusinessIntelligenceDashboard();
+                        console.log('Business Intelligence Dashboard initialized');
+                    }
+
+                    // Track session start
+                    document.dispatchEvent(new CustomEvent('vatSessionStart', {
+                        detail: {
+                            sessionId: window.analyticsManager?.sessionData?.sessionId || 'unknown',
+                            timestamp: Date.now()
+                        }
+                    }));
+
+                } catch (error) {
+                    console.error('Failed to initialize analytics components:', error);
+                }
+            }, 500);
+        });
+
+        // Track session end on page unload
+        window.addEventListener('beforeunload', function() {
+            if (window.analyticsManager) {
+                const sessionData = window.analyticsManager.getSessionData();
+                document.dispatchEvent(new CustomEvent('vatSessionEnd', {
+                    detail: {
+                        sessionId: sessionData.sessionId,
+                        calculations: sessionData.eventsTracked,
+                        exports: 0 // Would need to track this separately
+                    }
+                }));
+            }
+        });
+
+        // Error handling integration
+        window.addEventListener('error', function(event) {
+            if (window.errorTracker) {
+                window.errorTracker.captureError({
+                    type: 'javascript_error',
+                    message: event.message,
+                    filename: event.filename,
+                    lineno: event.lineno,
+                    colno: event.colno,
+                    stack: event.error?.stack,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        });
+
+        // Performance monitoring integration
+        if ('PerformanceObserver' in window) {
+            // Monitor long tasks
+            const observer = new PerformanceObserver((list) => {
+                list.getEntries().forEach((entry) => {
+                    if (entry.duration > 50 && window.performanceMonitor) { // Tasks longer than 50ms
+                        window.performanceMonitor.recordCustomMetric('long_task', {
+                            duration: entry.duration,
+                            startTime: entry.startTime,
+                            timestamp: Date.now()
+                        });
+                    }
+                });
+            });
+
+            try {
+                observer.observe({ entryTypes: ['longtask'] });
+            } catch (e) {
+                // Browser doesn't support longtask
+            }
+        }
+
+        // Add Business Intelligence Dashboard button to UI
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const header = document.querySelector('.header');
+                if (header && window.biDashboard) {
+                    const biButton = document.createElement('button');
+                    biButton.innerHTML = '📊 Analytics Dashboard';
+                    biButton.className = 'btn-secondary';
+                    biButton.style.marginLeft = '10px';
+                    biButton.onclick = function() {
+                        // Create modal for BI dashboard
+                        const modal = document.createElement('div');
+                        modal.innerHTML = `
+                            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                                <div style="background: white; border-radius: 12px; max-width: 95vw; max-height: 95vh; overflow: auto; position: relative;">
+                                    <button onclick="this.closest('div').remove()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; z-index: 1;">×</button>
+                                    <div id="bi-dashboard-container"></div>
+                                </div>
+                            </div>
+                        `;
+                        document.body.appendChild(modal);
+                        window.biDashboard.createDashboard('bi-dashboard-container');
+                    };
+                    
+                    // Add to header
+                    const titleContainer = header.querySelector('.hero h1');
+                    if (titleContainer && titleContainer.parentNode) {
+                        titleContainer.parentNode.appendChild(biButton);
+                    }
+                }
+            }, 2000);
+        });
+
+        // Development helpers
+        if (window.location.hostname === 'localhost') {
+            // Add development console commands
+            window.vatAnalytics = {
+                getMetrics: () => window.performanceMonitor?.getMetrics(),
+                getInsights: () => window.biDashboard?.getDashboardData(),
+                clearData: () => window.biDashboard?.clearAllData(),
+                exportData: () => window.biDashboard?.exportData(),
+                testError: () => { throw new Error('Test error for monitoring'); }
+            };
+            
+            console.log('VAT Calculator Pro - Analytics Suite Loaded');
+            console.log('Development commands available: window.vatAnalytics');
+        }
     </script>
 </body>
 </html>

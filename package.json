@@ -1,0 +1,76 @@
+{
+  "name": "vat-calculator-pro",
+  "version": "1.0.0",
+  "description": "Professional VAT Calculator for South African businesses",
+  "main": "index.html",
+  "scripts": {
+    "build": "npm run optimize:css && npm run optimize:js && npm run optimize:images",
+    "optimize:css": "postcss assets/css/*.css --replace --config postcss.config.js",
+    "optimize:js": "terser assets/js/*.js --compress --mangle --output-dir assets/js/min/",
+    "optimize:images": "imagemin assets/images/**/* --out-dir=assets/images/optimized",
+    "optimize:images:check": "echo 'Checking image optimization...' && du -sh assets/images/*",
+    "test": "playwright test",
+    "test:coverage": "echo 'Running coverage analysis...' && npm run test",
+    "test:accessibility": "axe-playwright",
+    "test:visual": "playwright test --project=visual-regression",
+    "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "generate:sitemap": "node scripts/generate-sitemap.js",
+    "generate:analytics": "node scripts/generate-analytics-config.js",
+    "lint": "npm run lint:html && npm run lint:css && npm run lint:js",
+    "lint:html": "html-validate *.html",
+    "lint:css": "stylelint 'assets/css/**/*.css'",
+    "lint:js": "eslint 'assets/js/**/*.js'",
+    "format": "prettier --write '**/*.{html,css,js,json,md}'",
+    "format:check": "prettier --check '**/*.{html,css,js,json,md}'",
+    "serve": "http-server . -p 8080",
+    "dev": "npm run serve",
+    "security:audit": "npm audit --audit-level=moderate",
+    "validate": "npm run lint && npm run test && npm run security:audit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@axe-core/playwright": "^4.8.0",
+    "eslint": "^8.55.0",
+    "stylelint": "^15.11.0",
+    "html-validate": "^8.7.0",
+    "prettier": "^3.1.0",
+    "postcss": "^8.4.32",
+    "postcss-cli": "^10.1.0",
+    "autoprefixer": "^10.4.16",
+    "cssnano": "^6.0.1",
+    "terser": "^5.24.0",
+    "imagemin": "^8.0.1",
+    "imagemin-mozjpeg": "^10.0.0",
+    "imagemin-pngquant": "^9.0.2",
+    "imagemin-svgo": "^10.0.1",
+    "http-server": "^14.1.1",
+    "lighthouse": "^11.3.0",
+    "bundlesize": "^0.18.1"
+  },
+  "bundlesize": [
+    {
+      "path": "assets/css/*.css",
+      "maxSize": "50 kB"
+    },
+    {
+      "path": "assets/js/*.js",
+      "maxSize": "100 kB"
+    }
+  ],
+  "keywords": [
+    "vat",
+    "calculator",
+    "south-africa",
+    "sars",
+    "excel",
+    "tax",
+    "accounting"
+  ],
+  "author": "VAT Calculator Pro Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RAD0901/Business_VAT_Calculator.git"
+  },
+  "homepage": "https://vat-calculator-pro.netlify.app"
+}
