@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAT Calculator Pro - Transform Excel VAT into Professional Reports</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0idXJsKCNncmFkaWVudDApIi8+CjxwYXRoIGQ9Ik04IDE2SDE2TDEyIDhWMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTYgMTZIMjRMMjAgMjRWMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudDAiIHgxPSIwIiB5MT0iMCIgeDI9IjMyIiB5Mj0iMzIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N0VFQSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRCQTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K">
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">V</div>
+                    VAT Calculator Pro
+                </div>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#/" class="nav-link active" data-page="home">Home</a></li>
+                        <li><a href="#/upload" class="nav-link" data-page="upload">Upload</a></li>
+                        <li><a href="#/demo" class="nav-link" data-page="demo">Demo</a></li>
+                        <li><a href="#/help" class="nav-link" data-page="help">Help</a></li>
+                        <li><a href="#/about" class="nav-link" data-page="about">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Home Page -->
+            <div id="home-page" class="page active">
+                <div class="hero">
+                    <h1>VAT Calculator Pro</h1>
+                    <p>Transform your Excel VAT data into professional SARS-compliant reports in seconds. No servers, no uploads - everything processes securely in your browser.</p>
+                    <div class="hero-buttons">
+                        <a href="#/upload" class="btn btn-primary btn-lg" data-page="upload">Start Calculating</a>
+                        <a href="#/demo" class="btn btn-secondary btn-lg" data-page="demo">View Demo</a>
+                    </div>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🚀</div>
+                        <h3>Lightning Fast</h3>
+                        <p>Process thousands of VAT transactions in under 5 seconds with our optimized calculation engine.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>100% Secure</h3>
+                        <p>All processing happens in your browser. Your data never leaves your computer.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Professional Reports</h3>
+                        <p>Generate SARS-compliant PDF and Excel reports with detailed breakdowns.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💰</div>
+                        <h3>SA VAT Compliant</h3>
+                        <p>Built specifically for South African VAT codes and SARS requirements.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Works Everywhere</h3>
+                        <p>Responsive design works perfectly on desktop, tablet, and mobile devices.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>No Installation</h3>
+                        <p>Web-based application requires no downloads or installations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Page -->
+            <div id="upload-page" class="page">
+                <div class="page-header">
+                    <h1>Upload Your VAT Data</h1>
+                    <p>Select your Excel file containing VAT transaction data for processing</p>
+                </div>
+
+                <div class="card">
+                    <div class="upload-area">
+                        <div class="upload-placeholder">
+                            <div class="upload-icon">📁</div>
+                            <h3>Drop your Excel file here</h3>
+                            <p>or click to browse files</p>
+                            <p class="text-light">Supports .xlsx and .xls files up to 50MB</p>
+                        </div>
+                        <input type="file" id="file-input" accept=".xlsx,.xls" style="display: none;">
+                    </div>
+                    <div id="file-status" class="file-status" style="display: none;"></div>
+                    <div class="text-center mt-3">
+                        <button id="process-btn" class="btn btn-primary btn-lg" disabled>Process File</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>File Requirements</h3>
+                    <ul>
+                        <li>Excel file (.xlsx or .xls format)</li>
+                        <li>Must contain columns: TaxCode, TaxDescription, TrCode, TaxRate, TaxAmount, ExclAmount, InclAmount</li>
+                        <li>TaxCode values: 1 (Standard 15%), 3 (Zero-rated), 5 (Exempt)</li>
+                        <li>TrCode values: Input VAT (CASH, JC, JNL, SINV, JD, RC) or Output VAT (IS, INV, RTS)</li>
+                        <li>Maximum file size: 50MB</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Processing Page -->
+            <div id="processing-page" class="page">
+                <div class="processing-container">
+                    <div class="page-header">
+                        <h1>Processing Your VAT Data</h1>
+                        <p>Please wait while we analyze your transactions...</p>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-bar">
+                            <div id="progress-fill" class="progress-fill"></div>
+                        </div>
+                        
+                        <div class="progress-steps">
+                            <div id="step-1" class="progress-step">
+                                <strong>1</strong><br>Reading File
+                            </div>
+                            <div id="step-2" class="progress-step">
+                                <strong>2</strong><br>Validating Data
+                            </div>
+                            <div id="step-3" class="progress-step">
+                                <strong>3</strong><br>Calculating VAT
+                            </div>
+                            <div id="step-4" class="progress-step">
+                                <strong>4</strong><br>Generating Report
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Page -->
+            <div id="results-page" class="page">
+                <div class="page-header">
+                    <h1>VAT Calculation Results</h1>
+                    <p>Your professional VAT report is ready</p>
+                </div>
+
+                <div class="export-toolbar">
+                    <div class="export-buttons">
+                        <button class="btn-export pdf" onclick="exportToPDF()">
+                            📄 Export PDF
+                        </button>
+                        <button class="btn-export excel" onclick="exportToExcel()">
+                            📊 Export Excel
+                        </button>
+                    </div>
+                    <div class="export-actions">
+                        <a href="#/upload" class="btn btn-secondary" data-page="upload">Process Another File</a>
+                    </div>
+                </div>
+
+                <div class="results-summary">
+                    <div class="result-card output">
+                        <div class="result-label">Total Output VAT</div>
+                        <div id="total-output-vat" class="result-amount">R 0.00</div>
+                    </div>
+                    <div class="result-card input">
+                        <div class="result-label">Total Input VAT</div>
+                        <div id="total-input-vat" class="result-amount">R 0.00</div>
+                    </div>
+                    <div class="result-card payable">
+                        <div id="vat-payable-label" class="result-label">VAT Payable</div>
+                        <div id="vat-payable-amount" class="result-amount">R 0.00</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">Sales Including VAT</div>
+                        <div id="sales-including-vat" class="result-amount">R 0.00</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">Sales Excluding VAT</div>
+                        <div id="sales-excluding-vat" class="result-amount">R 0.00</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">Zero Rated Sales</div>
+                        <div id="zero-rated-sales" class="result-amount">R 0.00</div>
+                    </div>
+                </div>
+
+                <div id="breakdown-sections"></div>
+            </div>
+
+            <!-- Demo Page -->
+            <div id="demo-page" class="page">
+                <div class="page-header">
+                    <h1>See VAT Calculator Pro in Action</h1>
+                    <p>Watch how we transform raw Excel data into professional VAT reports</p>
+                </div>
+
+                <div class="card">
+                    <h2>Sample Excel Input</h2>
+                    <table class="breakdown-table">
+                        <thead>
+                            <tr>
+                                <th>TaxCode</th>
+                                <th>TaxDescription</th>
+                                <th>TrCode</th>
+                                <th>TaxAmount</th>
+                                <th>ExclAmount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Standard Rate VAT</td>
+                                <td>INV</td>
+                                <td>150.00</td>
+                                <td>1000.00</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Standard Rate VAT</td>
+                                <td>CASH</td>
+                                <td>75.00</td>
+                                <td>500.00</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Zero Rated VAT</td>
+                                <td>INV</td>
+                                <td>0.00</td>
+                                <td>200.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h2>Generated Report</h2>
+                    <div class="results-summary">
+                        <div class="result-card output">
+                            <div class="result-label">Total Output VAT</div>
+                            <div class="result-amount">R 150.00</div>
+                        </div>
+                        <div class="result-card input">
+                            <div class="result-label">Total Input VAT</div>
+                            <div class="result-amount">R 75.00</div>
+                        </div>
+                        <div class="result-card payable">
+                            <div class="result-label">VAT Payable</div>
+                            <div class="result-amount">R 75.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="#/upload" class="btn btn-primary btn-lg" data-page="upload">Try It Now</a>
+                </div>
+            </div>
+
+            <!-- Help Page -->
+            <div id="help-page" class="page">
+                <div class="page-header">
+                    <h1>Help & Support</h1>
+                    <p>Everything you need to know about using VAT Calculator Pro</p>
+                </div>
+
+                <div class="card">
+                    <h2>Getting Started</h2>
+                    <ol>
+                        <li>Prepare your Excel file with the required columns</li>
+                        <li>Navigate to the Upload page</li>
+                        <li>Select or drag your Excel file</li>
+                        <li>Click "Process File" to start calculation</li>
+                        <li>View and export your professional VAT report</li>
+                    </ol>
+                </div>
+
+                <div class="card">
+                    <h2>Required Columns</h2>
+                    <ul>
+                        <li><strong>TaxCode:</strong> 1 (Standard 15%), 3 (Zero-rated), or 5 (Exempt)</li>
+                        <li><strong>TaxDescription:</strong> Description of the tax type</li>
+                        <li><strong>TrCode:</strong> Transaction code (see codes below)</li>
+                        <li><strong>TaxRate:</strong> Tax rate percentage</li>
+                        <li><strong>TaxAmount:</strong> VAT amount in Rands</li>
+                        <li><strong>ExclAmount:</strong> Amount excluding VAT</li>
+                        <li><strong>InclAmount:</strong> Amount including VAT</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>Transaction Codes</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div>
+                            <h3>Input VAT Codes (Purchases)</h3>
+                            <ul>
+                                <li>CASH - Cash purchases</li>
+                                <li>JC - Journal credit</li>
+                                <li>JNL - Journal entry</li>
+                                <li>SINV - Supplier invoice</li>
+                                <li>JD - Journal debit</li>
+                                <li>RC - Received cash</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>Output VAT Codes (Sales)</h3>
+                            <ul>
+                                <li>IS - Invoice sale</li>
+                                <li>INV - Invoice</li>
+                                <li>RTS - Return sale</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Page -->
+            <div id="about-page" class="page">
+                <div class="page-header">
+                    <h1>About VAT Calculator Pro</h1>
+                    <p>Professional VAT calculation tool for South African businesses</p>
+                </div>
+
+                <div class="card">
+                    <h2>Purpose</h2>
+                    <p>VAT Calculator Pro was built to help South African businesses and accountants quickly process Excel-based VAT data into professional, SARS-compliant reports. Our tool eliminates manual calculations and reduces errors while ensuring compliance with South African VAT regulations.</p>
+                </div>
+
+                <div class="card">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li>Client-side processing for maximum security</li>
+                        <li>Support for all South African VAT codes and rates</li>
+                        <li>Professional PDF and Excel report generation</li>
+                        <li>Real-time validation and error checking</li>
+                        <li>Mobile-responsive design</li>
+                        <li>No registration or software installation required</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>Privacy & Security</h2>
+                    <p>Your data privacy is our top priority. VAT Calculator Pro processes all data locally in your browser - no files are uploaded to any server. Your sensitive VAT information never leaves your computer, ensuring complete confidentiality and compliance with data protection requirements.</p>
+                </div>
+
+                <div class="card">
+                    <h2>Technical Specifications</h2>
+                    <ul>
+                        <li>Supports Excel files up to 50MB</li>
+                        <li>Processes up to 10,000+ transactions in under 5 seconds</li>
+                        <li>Compatible with all modern browsers</li>
+                        <li>Works offline after initial load</li>
+                        <li>No server dependencies</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="assets/js/vat-engine.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

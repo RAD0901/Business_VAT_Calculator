@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Priority pages
+Sitemap: https://vat-calculator-pro.netlify.app/sitemap.xml
+
+# Block sensitive paths
+Disallow: /assets/
+Disallow: /_redirects
+Disallow: /netlify.toml

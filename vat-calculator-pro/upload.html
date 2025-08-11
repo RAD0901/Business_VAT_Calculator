@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload VAT File - VAT Calculator Pro</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <nav class="navbar">
+                <div class="nav-brand">
+                    <img src="assets/images/logo.png" alt="VAT Calculator Pro" class="logo">
+                    <h1>VAT Calculator Pro</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="demo.html">Demo</a></li>
+                    <li><a href="help.html">Help</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="upload-container">
+                <div class="upload-card">
+                    <h2>Upload Your VAT Excel File</h2>
+                    <p>Drag and drop your Excel file or click to browse</p>
+                    
+                    <div class="file-drop-zone" id="fileDropZone">
+                        <div class="drop-zone-content">
+                            <div class="upload-icon">📁</div>
+                            <p class="drop-text">Drop your Excel file here</p>
+                            <p class="or-text">or</p>
+                            <button class="btn btn-secondary" id="fileSelectBtn">Choose File</button>
+                            <input type="file" id="fileInput" accept=".xlsx,.xls" hidden>
+                        </div>
+                    </div>
+
+                    <div class="file-requirements">
+                        <h4>File Requirements:</h4>
+                        <ul>
+                            <li>Excel format (.xlsx or .xls)</li>
+                            <li>Must contain columns: TaxCode, TaxDescription, TrCode, TaxRate, TaxAmount, ExclAmount, InclAmount</li>
+                            <li>Maximum file size: 50MB</li>
+                        </ul>
+                    </div>
+
+                    <div class="upload-progress" id="uploadProgress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p class="progress-text" id="progressText">Processing file...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <p>&copy; 2025 VAT Calculator Pro. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="assets/js/vat-engine.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
