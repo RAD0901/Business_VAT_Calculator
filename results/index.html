@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - VAT Calculator Pro</title>
+</head>
+<body>
+    <div class="page results-page">
+        <div class="container">
+            <h1>VAT Calculation Results</h1>
+            <p class="page-description">Your VAT calculations have been completed successfully.</p>
+            
+            <!-- Export Toolbar -->
+            <div class="export-toolbar">
+                <button onclick="exportToPDF()" class="export-btn">
+                    📄 Export PDF
+                </button>
+                <button onclick="exportToExcel()" class="export-btn">
+                    📊 Export Excel
+                </button>
+                <button onclick="sendEmail()" class="export-btn">
+                    ✉️ Email
+                </button>
+                <button onclick="printResults()" class="export-btn">
+                    🖨️ Print
+                </button>
+            </div>
+            
+            <!-- Results will be populated by JavaScript -->
+            <div id="results-content">
+                <!-- Dynamic content loaded here -->
+            </div>
+            
+            <div class="results-actions">
+                <button onclick="navigateToPage('upload')" class="btn-secondary">
+                    Process Another File
+                </button>
+                <button onclick="navigateToPage('history')" class="btn-secondary">
+                    View History
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

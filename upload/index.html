@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File - VAT Calculator Pro</title>
+</head>
+<body>
+    <div class="page upload-page">
+        <div class="container">
+            <h1>Upload Excel File</h1>
+            <p class="page-description">Select your Excel file containing VAT transaction data to begin processing.</p>
+            
+            <div class="upload-zone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+                <div class="upload-icon">📁</div>
+                <h3>Drop your Excel file here</h3>
+                <p>or click to browse</p>
+                <input type="file" id="file-input" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
+            </div>
+            
+            <div id="file-status" class="file-status" style="display: none;"></div>
+            
+            <div class="upload-actions">
+                <button id="process-btn" class="btn-primary" onclick="processFile()" disabled>
+                    Process File
+                </button>
+                <button class="btn-secondary" onclick="loadDemoData()">
+                    Load Demo Data
+                </button>
+            </div>
+            
+            <div class="requirements">
+                <h3>File Requirements</h3>
+                <ul>
+                    <li>Excel format (.xlsx or .xls)</li>
+                    <li>Maximum file size: 50MB</li>
+                    <li>Required columns: TaxCode, TaxDescription, TrCode, TaxRate, TaxAmount, ExclAmount, InclAmount</li>
+                    <li>Valid TaxCodes: CASH, JC, JNL, SINV, JD, RC (Input) | IS, INV, RTS (Output)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

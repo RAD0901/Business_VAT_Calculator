@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAT Calculator Pro</title>
+    
+    <!-- External CSS Files -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="#" class="logo" onclick="navigateToPage('upload')">VAT Calculator Pro</a>
+                <ul class="nav-links">
+                    <li><a href="#" onclick="navigateToPage('upload')" data-page="upload">Upload</a></li>
+                    <li><a href="#" onclick="navigateToPage('demo')" data-page="demo">Demo</a></li>
+                    <li><a href="#" onclick="navigateToPage('history')" data-page="history">History</a></li>
+                    <li><a href="#" onclick="navigateToPage('settings')" data-page="settings">Settings</a></li>
+                    <li><a href="#" onclick="navigateToPage('help')" data-page="help">Help</a></li>
+                    <li><a href="#" onclick="navigateToPage('about')" data-page="about">About</a></li>
+                </ul>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Upload Page -->
+        <div id="upload-page" class="page active">
+            <div class="container">
+                <h1>Upload Excel File</h1>
+                <p class="page-description">Select your Excel file containing VAT transaction data to begin processing.</p>
+                
+                <div class="upload-zone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+                    <div class="upload-icon">📁</div>
+                    <h3>Drop your Excel file here</h3>
+                    <p>or click to browse</p>
+                    <input type="file" id="file-input" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
+                </div>
+                
+                <div id="file-status" class="file-status" style="display: none;"></div>
+                
+                <div class="upload-actions">
+                    <button id="process-btn" class="btn-primary" onclick="processFile()" disabled>
+                        Process File
+                    </button>
+                    <button class="btn-secondary" onclick="loadDemoData()">
+                        Load Demo Data
+                    </button>
+                </div>
+                
+                <div class="requirements">
+                    <h3>File Requirements</h3>
+                    <ul>
+                        <li>Excel format (.xlsx or .xls)</li>
+                        <li>Maximum file size: 50MB</li>
+                        <li>Required columns: TaxCode, TaxDescription, TrCode, TaxRate, TaxAmount, ExclAmount, InclAmount</li>
+                        <li>Valid TaxCodes: CASH, JC, JNL, SINV, JD, RC (Input) | IS, INV, RTS (Output)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing Page -->
+        <div id="processing-page" class="page">
+            <div class="container">
+                <h1>Processing Your File</h1>
+                <p class="page-description">Please wait while we analyze your data and calculate VAT totals.</p>
+                
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    
+                    <div class="progress-steps">
+                        <div id="step-1" class="progress-step">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Reading File</div>
+                        </div>
+                        <div id="step-2" class="progress-step">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Validating Data</div>
+                        </div>
+                        <div id="step-3" class="progress-step">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Calculating VAT</div>
+                        </div>
+                        <div id="step-4" class="progress-step">
+                            <div class="step-number">4</div>
+                            <div class="step-label">Generating Report</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="processing-info">
+                    <h3>What we're doing:</h3>
+                    <ul>
+                        <li>✓ Reading and parsing your Excel file</li>
+                        <li>✓ Validating data structure and content</li>
+                        <li>✓ Categorizing transactions by tax codes</li>
+                        <li>✓ Calculating input and output VAT totals</li>
+                        <li>✓ Generating detailed breakdown report</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div id="results-page" class="page">
+            <div class="container">
+                <h1>VAT Calculation Results</h1>
+                <p class="page-description">Your VAT calculations have been completed successfully.</p>
+                
+                <!-- Export Toolbar -->
+                <div class="export-toolbar">
+                    <button onclick="exportToPDF()" class="export-btn">
+                        📄 Export PDF
+                    </button>
+                    <button onclick="exportToExcel()" class="export-btn">
+                        📊 Export Excel
+                    </button>
+                    <button onclick="sendEmail()" class="export-btn">
+                        ✉️ Email
+                    </button>
+                    <button onclick="printResults()" class="export-btn">
+                        🖨️ Print
+                    </button>
+                </div>
+                
+                <!-- Results will be populated by JavaScript -->
+                <div id="results-content">
+                    <!-- Dynamic content loaded here -->
+                </div>
+                
+                <div class="results-actions">
+                    <button onclick="navigateToPage('upload')" class="btn-secondary">
+                        Process Another File
+                    </button>
+                    <button onclick="navigateToPage('history')" class="btn-secondary">
+                        View History
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Page -->
+        <div id="demo-page" class="page">
+            <div class="container">
+                <h1>Demo Mode</h1>
+                <p class="page-description">Try the VAT Calculator with sample data to see how it works.</p>
+                
+                <div class="demo-info">
+                    <h2>What's Included in the Demo</h2>
+                    <ul>
+                        <li>Sample Excel data with various tax codes</li>
+                        <li>Input VAT transactions (CASH, JC, JNL, SINV, JD, RC)</li>
+                        <li>Output VAT transactions (IS, INV, RTS)</li>
+                        <li>Professional report generation</li>
+                        <li>Export functionality demonstration</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-actions">
+                    <button onclick="loadDemoData()" class="btn-primary">
+                        🚀 Load Demo Data
+                    </button>
+                    <button onclick="navigateToPage('upload')" class="btn-secondary">
+                        📁 Upload Real Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Page -->
+        <div id="history-page" class="page">
+            <div class="container">
+                <h1>Calculation History</h1>
+                <p class="page-description">View and manage your previous VAT calculations.</p>
+                
+                <div class="history-controls">
+                    <button onclick="loadCalculationHistory()" class="btn-secondary">
+                        🔄 Refresh
+                    </button>
+                    <button onclick="exportHistory()" class="btn-secondary">
+                        📊 Export History
+                    </button>
+                    <button onclick="clearAllHistory()" class="btn-danger">
+                        🗑️ Clear All
+                    </button>
+                </div>
+                
+                <div id="history-container" class="history-container">
+                    <!-- History items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings-page" class="page">
+            <div class="container">
+                <h1>Settings</h1>
+                <p class="page-description">Customize your VAT Calculator experience and preferences.</p>
+                
+                <div id="settings-message" class="settings-message" style="display: none;"></div>
+                
+                <div class="settings-grid">
+                    <!-- Company Settings -->
+                    <div class="settings-card">
+                        <h3>Company Information</h3>
+                        <div class="form-group">
+                            <label for="company-name">Company Name:</label>
+                            <input type="text" id="company-name" placeholder="Enter company name">
+                        </div>
+                        <div class="form-group">
+                            <label for="logo-url">Company Logo URL:</label>
+                            <input type="url" id="logo-url" placeholder="https://example.com/logo.png">
+                            <div id="logo-preview" class="logo-preview"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pdf-title">Default PDF Title:</label>
+                            <input type="text" id="pdf-title" placeholder="VAT Calculator Report">
+                        </div>
+                        <div class="form-group">
+                            <label for="vat-rate">Default VAT Rate (%):</label>
+                            <input type="number" id="vat-rate" min="0" max="100" step="0.1" value="15">
+                        </div>
+                    </div>
+                    
+                    <!-- Appearance Settings -->
+                    <div class="settings-card">
+                        <h3>Appearance</h3>
+                        <div class="form-group">
+                            <label for="theme">Theme:</label>
+                            <select id="theme">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="auto">Auto</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="show-tutorial">
+                                Show tutorial for new users
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Export Settings -->
+                    <div class="settings-card">
+                        <h3>Export Preferences</h3>
+                        <div class="form-group">
+                            <label for="export-format">Default Export Format:</label>
+                            <select id="export-format">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="auto-save">
+                                Automatically save calculations to history
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-actions">
+                    <button onclick="updateSettings()" class="btn-primary">
+                        Save Settings
+                    </button>
+                    <button onclick="resetSettings()" class="btn-secondary">
+                        Reset to Defaults
+                    </button>
+                    <button onclick="showTutorial()" class="btn-secondary">
+                        Show Tutorial
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Page -->
+        <div id="help-page" class="page">
+            <div class="container">
+                <h1>Help & Documentation</h1>
+                <p class="page-description">Everything you need to know about using the VAT Calculator Pro.</p>
+                
+                <div class="help-sections">
+                    <div class="help-section">
+                        <h2>🚀 Getting Started</h2>
+                        <ol>
+                            <li>Prepare your Excel file with VAT transaction data</li>
+                            <li>Ensure your file has the required columns (see File Requirements below)</li>
+                            <li>Upload your file on the Upload page</li>
+                            <li>Wait for processing to complete</li>
+                            <li>Review and export your VAT calculation results</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h2>📋 File Requirements</h2>
+                        <h3>Required Columns:</h3>
+                        <ul>
+                            <li><strong>TaxCode</strong> - The tax code (see valid codes below)</li>
+                            <li><strong>TaxDescription</strong> - Description of the tax transaction</li>
+                            <li><strong>TrCode</strong> - Transaction code</li>
+                            <li><strong>TaxRate</strong> - VAT rate as percentage (e.g., 15)</li>
+                            <li><strong>TaxAmount</strong> - VAT amount in currency</li>
+                            <li><strong>ExclAmount</strong> - Amount excluding VAT</li>
+                            <li><strong>InclAmount</strong> - Amount including VAT</li>
+                        </ul>
+                        
+                        <h3>Valid Tax Codes:</h3>
+                        <div class="tax-codes">
+                            <div class="tax-code-group">
+                                <h4>Input VAT (VAT you paid):</h4>
+                                <ul>
+                                    <li><strong>CASH</strong> - Cash transactions</li>
+                                    <li><strong>JC</strong> - Journal credit entries</li>
+                                    <li><strong>JNL</strong> - Journal entries</li>
+                                    <li><strong>SINV</strong> - Supplier invoices</li>
+                                    <li><strong>JD</strong> - Journal debit entries</li>
+                                    <li><strong>RC</strong> - Receipt entries</li>
+                                </ul>
+                            </div>
+                            <div class="tax-code-group">
+                                <h4>Output VAT (VAT you collected):</h4>
+                                <ul>
+                                    <li><strong>IS</strong> - Invoice sales</li>
+                                    <li><strong>INV</strong> - Invoices</li>
+                                    <li><strong>RTS</strong> - Returns</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-actions">
+                    <button onclick="showTutorial()" class="btn-primary">
+                        📖 Show Tutorial
+                    </button>
+                    <button onclick="navigateToPage('demo')" class="btn-secondary">
+                        🧪 Try Demo
+                    </button>
+                    <button onclick="navigateToPage('upload')" class="btn-secondary">
+                        📁 Start Calculating
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about-page" class="page">
+            <div class="container">
+                <h1>About VAT Calculator Pro</h1>
+                <p class="page-description">Professional VAT calculation tool for South African businesses.</p>
+                
+                <div class="about-content">
+                    <div class="about-section">
+                        <h2>🎯 Purpose</h2>
+                        <p>VAT Calculator Pro is designed to help South African businesses accurately calculate their VAT liability by processing Excel files containing transaction data.</p>
+                    </div>
+                    
+                    <div class="about-section">
+                        <h2>✨ Key Features</h2>
+                        <ul>
+                            <li><strong>Automated Processing</strong> - Upload Excel files and get instant VAT calculations</li>
+                            <li><strong>Smart Categorization</strong> - Automatically sorts transactions by tax codes</li>
+                            <li><strong>Professional Reports</strong> - Generate PDF and Excel reports for filing</li>
+                            <li><strong>Calculation History</strong> - Track and review previous calculations</li>
+                            <li><strong>Export Options</strong> - PDF, Excel, email, and print capabilities</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="version-info">
+                        <h3>Version Information</h3>
+                        <p><strong>Version:</strong> 1.0.0</p>
+                        <p><strong>Last Updated:</strong> December 2024</p>
+                        <p><strong>Compatible with:</strong> South African VAT regulations</p>
+                    </div>
+                </div>
+                
+                <div class="about-actions">
+                    <button onclick="navigateToPage('upload')" class="btn-primary">
+                        🚀 Start Calculating
+                    </button>
+                    <button onclick="navigateToPage('demo')" class="btn-secondary">
+                        🧪 Try Demo
+                    </button>
+                    <button onclick="navigateToPage('help')" class="btn-secondary">
+                        📖 View Help
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- External JavaScript Files -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/vat-engine.js"></script>
+    <script src="assets/js/file-processor.js"></script>
+    <script src="assets/js/ui-components.js"></script>
+
+    <script>
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+    </script>
+</body>
+</html>

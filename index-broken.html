@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAT Calculator Pro</title>
+    
+    <!-- External CSS Files -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="#" class="logo" onclick="navigateToPage('upload')">VAT Calculator Pro</a>
+                <ul class="nav-links">
+                    <li><a href="#" onclick="navigateToPage('upload')" data-page="upload">Upload</a></li>
+                    <li><a href="#" onclick="navigateToPage('demo')" data-page="demo">Demo</a></li>
+                    <li><a href="#" onclick="navigateToPage('history')" data-page="history">History</a></li>
+                    <li><a href="#" onclick="navigateToPage('settings')" data-page="settings">Settings</a></li>
+                    <li><a href="#" onclick="navigateToPage('help')" data-page="help">Help</a></li>
+                    <li><a href="#" onclick="navigateToPage('about')" data-page="about">About</a></li>
+                </ul>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main id="main-content">
+        <!-- Content will be loaded dynamically -->
+    </main>
+
+    <!-- External JavaScript Files -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/vat-engine.js"></script>
+    <script src="assets/js/file-processor.js"></script>
+    <script src="assets/js/ui-components.js"></script>
+
+    <script>
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+    </script>
+</body>
+</html>

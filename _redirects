@@ -1,0 +1,15 @@
+# SPA Redirects for Netlify
+/*    /index.html   200
+
+# Prevent access to sensitive files
+/.env*              404
+/config/*           404
+/secrets/*          404
+/*.log              404
+/node_modules/*     404
+
+# API endpoints (if implemented)
+/api/*              /api/index.html   200
+
+# Static asset optimization
+/assets/*           /assets/:splat    200

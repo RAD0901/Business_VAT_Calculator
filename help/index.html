@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help - VAT Calculator Pro</title>
+</head>
+<body>
+    <div class="page help-page">
+        <div class="container">
+            <h1>Help & Documentation</h1>
+            <p class="page-description">Everything you need to know about using the VAT Calculator Pro.</p>
+            
+            <div class="help-sections">
+                <div class="help-section">
+                    <h2>🚀 Getting Started</h2>
+                    <ol>
+                        <li>Prepare your Excel file with VAT transaction data</li>
+                        <li>Ensure your file has the required columns (see File Requirements below)</li>
+                        <li>Upload your file on the Upload page</li>
+                        <li>Wait for processing to complete</li>
+                        <li>Review and export your VAT calculation results</li>
+                    </ol>
+                </div>
+                
+                <div class="help-section">
+                    <h2>📋 File Requirements</h2>
+                    <h3>Required Columns:</h3>
+                    <ul>
+                        <li><strong>TaxCode</strong> - The tax code (see valid codes below)</li>
+                        <li><strong>TaxDescription</strong> - Description of the tax transaction</li>
+                        <li><strong>TrCode</strong> - Transaction code</li>
+                        <li><strong>TaxRate</strong> - VAT rate as percentage (e.g., 15)</li>
+                        <li><strong>TaxAmount</strong> - VAT amount in currency</li>
+                        <li><strong>ExclAmount</strong> - Amount excluding VAT</li>
+                        <li><strong>InclAmount</strong> - Amount including VAT</li>
+                    </ul>
+                    
+                    <h3>Valid Tax Codes:</h3>
+                    <div class="tax-codes">
+                        <div class="tax-code-group">
+                            <h4>Input VAT (VAT you paid):</h4>
+                            <ul>
+                                <li><strong>CASH</strong> - Cash transactions</li>
+                                <li><strong>JC</strong> - Journal credit entries</li>
+                                <li><strong>JNL</strong> - Journal entries</li>
+                                <li><strong>SINV</strong> - Supplier invoices</li>
+                                <li><strong>JD</strong> - Journal debit entries</li>
+                                <li><strong>RC</strong> - Receipt entries</li>
+                            </ul>
+                        </div>
+                        <div class="tax-code-group">
+                            <h4>Output VAT (VAT you collected):</h4>
+                            <ul>
+                                <li><strong>IS</strong> - Invoice sales</li>
+                                <li><strong>INV</strong> - Invoices</li>
+                                <li><strong>RTS</strong> - Returns</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h2>📊 Understanding Results</h2>
+                    <p>The VAT Calculator provides a comprehensive breakdown of your VAT liability:</p>
+                    <ul>
+                        <li><strong>Input VAT Total</strong> - Total VAT you paid on purchases</li>
+                        <li><strong>Output VAT Total</strong> - Total VAT you collected on sales</li>
+                        <li><strong>Net VAT Amount</strong> - The difference (Output VAT - Input VAT)</li>
+                        <li><strong>Detailed Breakdown</strong> - Transaction counts and amounts by tax code</li>
+                    </ul>
+                    
+                    <div class="result-interpretation">
+                        <h3>Interpreting Net VAT Amount:</h3>
+                        <ul>
+                            <li><strong>Positive amount</strong> - You owe VAT to SARS</li>
+                            <li><strong>Negative amount</strong> - SARS owes you a VAT refund</li>
+                            <li><strong>Zero amount</strong> - No VAT liability or refund</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h2>💾 Export Options</h2>
+                    <ul>
+                        <li><strong>PDF Export</strong> - Professional report suitable for filing</li>
+                        <li><strong>Excel Export</strong> - Detailed spreadsheet with all data</li>
+                        <li><strong>Email</strong> - Send results directly via email</li>
+                        <li><strong>Print</strong> - Print-friendly format for hard copies</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h2>🔧 Troubleshooting</h2>
+                    <h3>Common Issues:</h3>
+                    <ul>
+                        <li><strong>File not uploading</strong> - Check file format (.xlsx or .xls) and size (&lt;50MB)</li>
+                        <li><strong>Invalid tax codes</strong> - Ensure tax codes match the valid list above</li>
+                        <li><strong>Missing columns</strong> - Verify all required columns are present</li>
+                        <li><strong>Processing errors</strong> - Check for non-numeric values in amount fields</li>
+                    </ul>
+                    
+                    <h3>Data Validation:</h3>
+                    <ul>
+                        <li>Tax codes must be exactly as listed (case-sensitive)</li>
+                        <li>Numeric fields (rates, amounts) must contain valid numbers</li>
+                        <li>Empty or invalid rows are automatically skipped</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h2>⚖️ Compliance Notes</h2>
+                    <p><strong>Important:</strong> This calculator is for informational purposes only. Always consult with a qualified tax professional or accountant for official VAT submissions to SARS.</p>
+                    <ul>
+                        <li>Verify calculations independently before filing</li>
+                        <li>Keep original Excel files as supporting documentation</li>
+                        <li>Regular backups of calculation history are recommended</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="help-actions">
+                <button onclick="showTutorial()" class="btn-primary">
+                    📖 Show Tutorial
+                </button>
+                <button onclick="navigateToPage('demo')" class="btn-secondary">
+                    🧪 Try Demo
+                </button>
+                <button onclick="navigateToPage('upload')" class="btn-secondary">
+                    📁 Start Calculating
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

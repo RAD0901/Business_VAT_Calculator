@@ -1,0 +1,35 @@
+User-agent: *
+Allow: /
+Allow: /demo
+Allow: /help
+Allow: /about
+
+# Disallow pages that shouldn't be indexed
+Disallow: /processing
+Disallow: /results
+Disallow: /history
+Disallow: /settings
+
+# Disallow sensitive directories
+Disallow: /assets/js/
+Disallow: /assets/css/
+Disallow: /.netlify/
+Disallow: /node_modules/
+
+# Allow assets that should be accessible
+Allow: /assets/images/
+Allow: /assets/icons/
+
+# Crawl delay (optional)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://vat-calculator-pro.netlify.app/sitemap.xml
+
+# Google Search Console verification (add your verification file)
+# User-agent: Googlebot
+# Allow: /
+
+# Bing verification
+# User-agent: Bingbot  
+# Allow: /

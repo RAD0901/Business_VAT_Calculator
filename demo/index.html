@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - VAT Calculator Pro</title>
+</head>
+<body>
+    <div class="page demo-page">
+        <div class="container">
+            <h1>Demo Mode</h1>
+            <p class="page-description">Try the VAT Calculator with sample data to see how it works.</p>
+            
+            <div class="demo-info">
+                <h2>What's Included in the Demo</h2>
+                <ul>
+                    <li>Sample Excel data with various tax codes</li>
+                    <li>Input VAT transactions (CASH, JC, JNL, SINV, JD, RC)</li>
+                    <li>Output VAT transactions (IS, INV, RTS)</li>
+                    <li>Professional report generation</li>
+                    <li>Export functionality demonstration</li>
+                </ul>
+            </div>
+            
+            <div class="demo-actions">
+                <button onclick="loadDemoData()" class="btn-primary">
+                    🚀 Load Demo Data
+                </button>
+                <button onclick="navigateToPage('upload')" class="btn-secondary">
+                    📁 Upload Real Data
+                </button>
+            </div>
+            
+            <div class="demo-sample">
+                <h3>Sample Data Structure</h3>
+                <table class="demo-table">
+                    <thead>
+                        <tr>
+                            <th>TaxCode</th>
+                            <th>TaxDescription</th>
+                            <th>TrCode</th>
+                            <th>TaxRate</th>
+                            <th>TaxAmount</th>
+                            <th>ExclAmount</th>
+                            <th>InclAmount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CASH</td>
+                            <td>Cash Sale</td>
+                            <td>SINV</td>
+                            <td>15%</td>
+                            <td>R 150.00</td>
+                            <td>R 1,000.00</td>
+                            <td>R 1,150.00</td>
+                        </tr>
+                        <tr>
+                            <td>IS</td>
+                            <td>Invoice Sale</td>
+                            <td>INV</td>
+                            <td>15%</td>
+                            <td>R 300.00</td>
+                            <td>R 2,000.00</td>
+                            <td>R 2,300.00</td>
+                        </tr>
+                        <tr>
+                            <td>JC</td>
+                            <td>Journal Credit</td>
+                            <td>JNL</td>
+                            <td>15%</td>
+                            <td>R 75.00</td>
+                            <td>R 500.00</td>
+                            <td>R 575.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

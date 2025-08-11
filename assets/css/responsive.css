@@ -1,0 +1,351 @@
+/* Responsive Design */
+
+/* Mobile Navigation */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--card-background);
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: var(--shadow-lg);
+        border-top: 1px solid var(--border-color);
+        z-index: 1000;
+    }
+
+    .nav-links.mobile-open {
+        display: flex;
+    }
+
+    .nav-links li {
+        margin: 0.5rem 0;
+    }
+
+    .nav {
+        position: relative;
+    }
+
+    .container {
+        padding: 0 16px;
+    }
+
+    .hero {
+        margin: -2rem -16px 2rem -16px;
+        padding: 2rem 1rem;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .results-summary {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .input-output-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .input-section {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .vat-payable .amount {
+        font-size: 2rem;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--primary-gradient);
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: var(--shadow);
+    }
+
+    .nav-links.show {
+        display: flex;
+    }
+
+    .mobile-menu-toggle {
+        display: flex;
+    }
+
+    .comparison-table,
+    .comparison-header,
+    .comparison-row {
+        grid-template-columns: 1fr;
+    }
+
+    .comparison-item {
+        border-bottom: 1px solid var(--border);
+    }
+
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .faq-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .demo-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .demo-arrow {
+        transform: rotate(90deg);
+        justify-self: center;
+    }
+
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .requirements-grid,
+    .trcode-tables,
+    .benefits-grid,
+    .privacy-highlights,
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+    }
+
+    .export-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .export-buttons,
+    .export-actions {
+        justify-content: center;
+    }
+
+    .mapping-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .preferences-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .history-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .comparison-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .comparison-controls select {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .history-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .history-filters input {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .history-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .history-amount {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .settings-actions {
+        flex-direction: column;
+    }
+
+    .danger-actions {
+        flex-direction: column;
+    }
+}
+
+/* Tablet Devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .results-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .comparison-table,
+    .comparison-header,
+    .comparison-row {
+        grid-template-columns: 2fr 1fr 1fr;
+    }
+
+    .testimonials-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .faq-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .steps-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .requirements-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .history-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Large Desktop */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1400px;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .results-summary {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .history-stats {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Print Styles */
+@media print {
+    .header, 
+    .footer, 
+    .export-toolbar, 
+    .breadcrumb,
+    .nav-links,
+    .mobile-menu-toggle {
+        display: none !important;
+    }
+    
+    .main-content {
+        padding: 0 !important;
+    }
+    
+    .page {
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
+    .results-summary {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .breakdown-section {
+        page-break-inside: avoid;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+
+    .btn {
+        display: none !important;
+    }
+
+    .vat-payable {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+        border: 2px solid #000 !important;
+    }
+
+    .summary-card {
+        background: #f5f5f5 !important;
+        color: #000 !important;
+        border: 1px solid #ddd !important;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .upload-icon,
+    .feature-icon,
+    .stat-icon {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}

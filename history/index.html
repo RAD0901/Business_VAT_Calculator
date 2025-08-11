@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - VAT Calculator Pro</title>
+</head>
+<body>
+    <div class="page history-page">
+        <div class="container">
+            <h1>Calculation History</h1>
+            <p class="page-description">View and manage your previous VAT calculations.</p>
+            
+            <div class="history-controls">
+                <button onclick="loadCalculationHistory()" class="btn-secondary">
+                    🔄 Refresh
+                </button>
+                <button onclick="exportHistory()" class="btn-secondary">
+                    📊 Export History
+                </button>
+                <button onclick="clearAllHistory()" class="btn-danger">
+                    🗑️ Clear All
+                </button>
+            </div>
+            
+            <div id="history-container" class="history-container">
+                <!-- History items will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
