@@ -1,33 +1,206 @@
-# Security Headers
+# ==========================================
+# VAT Calculator Pro - Security & Performance Headers
+# ==========================================
+
+# Global security headers for all files
 /*
+  # Core Security Headers
   X-Frame-Options: DENY
   X-XSS-Protection: 1; mode=block
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com; frame-src 'none'; object-src 'none'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  
+  # Content Security Policy (comprehensive)
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https: https://www.google-analytics.com https://www.googletagmanager.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; worker-src 'self' blob:; child-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content
+  
+  # Permissions Policy (restrict browser features)
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), gyroscope=(), accelerometer=(), magnetometer=(), usb=(), payment=(), autoplay=(), fullscreen=(self), picture-in-picture=()
+  
+  # Cross-Origin Policies
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
+  
+  # Performance Headers
+  Accept-CH: DPR, Viewport-Width, Width, Save-Data
+  Critical-CH: DPR, Viewport-Width, Width
+  
+  # Default caching for dynamic content
+  Cache-Control: public, max-age=300, s-maxage=600
+  Vary: Accept-Encoding
 
-# Cache Control for Static Assets
+# ==========================================
+# HTML FILES - DYNAMIC CONTENT
+# ==========================================
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate, s-maxage=300
+  Vary: Accept-Encoding, User-Agent
+  Content-Type: text/html; charset=utf-8
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+  Link: </assets/css/main.css>; rel=preload; as=style
+  Link: </assets/js/app.js>; rel=preload; as=script
+
+# ==========================================
+# CSS FILES - LONG-TERM CACHING
+# ==========================================
+
 /assets/css/*
   Cache-Control: public, max-age=31536000, immutable
+  Content-Type: text/css; charset=utf-8
+  Vary: Accept-Encoding
+
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: text/css; charset=utf-8
+
+# ==========================================
+# JAVASCRIPT FILES - LONG-TERM CACHING
+# ==========================================
 
 /assets/js/*
   Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/javascript; charset=utf-8
+  Vary: Accept-Encoding
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/javascript; charset=utf-8
+
+# Service Worker - No caching
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+  Service-Worker-Allowed: /
+
+# ==========================================
+# IMAGE FILES - OPTIMIZED CACHING
+# ==========================================
 
 /assets/images/*
   Cache-Control: public, max-age=31536000, immutable
+  Vary: Accept
 
-# HTML files - short cache with revalidation
-/*.html
-  Cache-Control: public, max-age=300, s-maxage=600
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: image/png
 
-# Root files
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: image/jpeg
+
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: image/jpeg
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: image/webp
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: image/svg+xml
+
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: image/x-icon
+
+# ==========================================
+# FONT FILES - LONG-TERM CACHING
+# ==========================================
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: font/woff2
+  Cross-Origin-Resource-Policy: cross-origin
+
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: font/woff
+  Cross-Origin-Resource-Policy: cross-origin
+
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: font/ttf
+
+# ==========================================
+# APPLICATION FILES
+# ==========================================
+
 /manifest.json
   Cache-Control: public, max-age=86400
+  Content-Type: application/manifest+json
 
 /robots.txt
   Cache-Control: public, max-age=86400
+  Content-Type: text/plain; charset=utf-8
+
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+  Content-Type: application/xml; charset=utf-8
+
+# ==========================================
+# EXCEL & CSV FILES (SAMPLE DOWNLOADS)
+# ==========================================
+
+/*.xlsx
+  Cache-Control: public, max-age=86400
+  Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  Content-Disposition: attachment
+
+/*.xls
+  Cache-Control: public, max-age=86400
+  Content-Type: application/vnd.ms-excel
+  Content-Disposition: attachment
+
+/*.csv
+  Cache-Control: public, max-age=86400
+  Content-Type: text/csv; charset=utf-8
+  Content-Disposition: attachment
+
+# ==========================================
+# API RESPONSES (FUTURE)
+# ==========================================
+
+/.netlify/functions/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  Access-Control-Allow-Origin: https://vat-calculator-pro.netlify.app
+  Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With
+  Access-Control-Max-Age: 86400
+
+# ==========================================
+# SECURITY FILES
+# ==========================================
+
+/.well-known/*
+  Cache-Control: public, max-age=86400
+
+/SECURITY.md
+  Cache-Control: public, max-age=86400
+  Content-Type: text/markdown; charset=utf-8
+
+# ==========================================
+# ERROR PAGES
+# ==========================================
+
+/error/*
+  Cache-Control: public, max-age=300
+  Content-Type: text/html; charset=utf-8
+
+# ==========================================
+# DOCUMENTATION
+# ==========================================
+
+/docs/*
+  Cache-Control: public, max-age=3600
+  Content-Type: text/markdown; charset=utf-8
+
+/*.md
+  Cache-Control: public, max-age=3600
+  Content-Type: text/markdown; charset=utf-8
 
 /sitemap.xml
   Cache-Control: public, max-age=86400

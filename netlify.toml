@@ -1,15 +1,78 @@
-# Netlify Configuration
+# Netlify Configuration for VAT Calculator Pro
+# Enterprise-grade deployment with security and performance optimization
+
 [build]
+  # Build configuration for static site
   publish = "."
-  command = "echo 'No build step required - static site'"
+  command = "echo 'VAT Calculator Pro - Static site deployment'"
+  
+  # Build environment
+  [build.environment]
+    NODE_VERSION = "18"
+    ANALYTICS_ID = "G-XXXXXXXXXX"  # Replace with actual Google Analytics ID
+    ERROR_REPORTING_KEY = ""       # Optional: Error tracking service key
+    ENVIRONMENT = "production"
+    DEBUG_MODE = "false"
+    CONTACT_EMAIL = "support@vatcalculator.com"  # Update with actual email
 
-[build.environment]
-  NODE_VERSION = "18"
+# Branch-specific deployments
+[context.production]
+  publish = "."
+  command = "echo 'Production deployment'"
 
-# Redirect rules for SPA routing
+[context.deploy-preview]
+  publish = "."
+  command = "echo 'Preview deployment'"
+
+[context.branch-deploy]
+  publish = "."
+  command = "echo 'Branch deployment'"
+
+# ==========================================
+# REDIRECT RULES
+# ==========================================
+
+# Force HTTPS (Security requirement)
+[[redirects]]
+  from = "http://vat-calculator-pro.netlify.app/*"
+  to = "https://vat-calculator-pro.netlify.app/:splat"
+  status = 301
+  force = true
+
+# WWW to non-WWW redirect
+[[redirects]]
+  from = "https://www.vat-calculator-pro.netlify.app/*"
+  to = "https://vat-calculator-pro.netlify.app/:splat"
+  status = 301
+  force = true
+
+# Legacy URL redirects (if migrating from old system)
+[[redirects]]
+  from = "/calculator"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/vat-calc"
+  to = "/"
+  status = 301
+
+# API endpoints for future expansion
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# SPA routing with clean URLs
 [[redirects]]
   from = "/upload"
   to = "/upload/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/processing"
+  to = "/processing/"
   status = 301
   force = true
 
@@ -49,6 +112,37 @@
   status = 301
   force = true
 
+# Asset optimization redirects
+[[redirects]]
+  from = "/assets/images/*"
+  to = "/assets/images/:splat"
+  status = 200
+  headers = {Cache-Control = "public, max-age=31536000, immutable"}
+
+# File download redirects
+[[redirects]]
+  from = "/download/sample"
+  to = "/tests/sample-data/basic-vat-sample.csv"
+  status = 200
+
+# Health check endpoint
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/health"
+  status = 200
+
+# Sitemap redirect
+[[redirects]]
+  from = "/sitemap"
+  to = "/sitemap.xml"
+  status = 301
+
+# Catch-all redirect for SPA (must be last)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [[redirects]]
   from = "/processing"
   to = "/processing/"
@@ -61,28 +155,152 @@
   to = "/index.html"
   status = 200
 
+# ==========================================
+# SECURITY & PERFORMANCE HEADERS
+# ==========================================
+
+# Global security headers for all files
 [[headers]]
   for = "/*"
   [headers.values]
+    # Security Headers
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    
+    # Content Security Policy for VAT Calculator Pro
+    Content-Security-Policy = '''
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' 
+        https://cdnjs.cloudflare.com 
+        https://cdn.jsdelivr.net 
+        https://www.googletagmanager.com 
+        https://www.google-analytics.com;
+      style-src 'self' 'unsafe-inline' 
+        https://fonts.googleapis.com 
+        https://cdnjs.cloudflare.com;
+      img-src 'self' data: blob: 
+        https: 
+        https://www.google-analytics.com 
+        https://www.googletagmanager.com;
+      font-src 'self' data: 
+        https://fonts.gstatic.com 
+        https://cdnjs.cloudflare.com;
+      connect-src 'self' 
+        https://www.google-analytics.com 
+        https://analytics.google.com 
+        https://stats.g.doubleclick.net;
+      worker-src 'self' blob:;
+      child-src 'self';
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self' https://formspree.io;
+      frame-ancestors 'none';
+      upgrade-insecure-requests;
+      block-all-mixed-content;
+    '''
+    
+    # Permissions Policy (Feature Policy)
+    Permissions-Policy = '''
+      camera=(), 
+      microphone=(), 
+      geolocation=(), 
+      gyroscope=(), 
+      accelerometer=(), 
+      magnetometer=(), 
+      usb=(), 
+      payment=(), 
+      autoplay=(), 
+      fullscreen=(self), 
+      picture-in-picture=()
+    '''
+    
+    # Cross-Origin Policies
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "require-corp"
+    Cross-Origin-Resource-Policy = "same-origin"
+    
+    # Performance Headers
+    Accept-CH = "DPR, Viewport-Width, Width, Save-Data"
+    Critical-CH = "DPR, Viewport-Width, Width"
+    
+    # Caching Headers (default)
+    Cache-Control = "public, max-age=300, s-maxage=600"
 
+# HTML files - no long-term caching for dynamic content
 [[headers]]
   for = "*.html"
   [headers.values]
-    Cache-Control = "public, max-age=300, s-maxage=600"
+    Cache-Control = "public, max-age=0, must-revalidate, s-maxage=300"
+    Vary = "Accept-Encoding"
 
+# CSS files - long-term caching with immutable flag
 [[headers]]
   for = "*.css"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "text/css; charset=utf-8"
 
+# JavaScript files - long-term caching with immutable flag
 [[headers]]
   for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "application/javascript; charset=utf-8"
+
+# Image files - long-term caching
+[[headers]]
+  for = "/assets/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Vary = "Accept"
+
+# Font files - long-term caching
+[[headers]]
+  for = "*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+[[headers]]
+  for = "*.woff"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+# Manifest and service worker
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "application/manifest+json"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+# API responses (for future use)
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Access-Control-Allow-Origin = "https://vat-calculator-pro.netlify.app"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Static assets with specific MIME types
+[[headers]]
+  for = "*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "image/svg+xml"
+
+[[headers]]
+  for = "*.ico"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
@@ -106,73 +324,248 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Excel files (sample downloads)
 [[headers]]
-  for = "*.ico"
+  for = "*.xlsx"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    Content-Disposition = "attachment"
 
+[[headers]]
+  for = "*.xls"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "application/vnd.ms-excel"
+    Content-Disposition = "attachment"
+
+# CSV files (sample data)
+[[headers]]
+  for = "*.csv"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "text/csv; charset=utf-8"
+    Content-Disposition = "attachment"
+
+# XML files (sitemap, etc.)
+[[headers]]
+  for = "*.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "application/xml; charset=utf-8"
+
+# Security files
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/.well-known/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# ==========================================
+# FORM HANDLING & FUNCTIONS
+# ==========================================
+
+# Contact form processing
 [[redirects]]
-  from = "/upload/*"
-  to = "/#upload"
+  from = "/api/contact"
+  to = "/.netlify/functions/contact"
   status = 200
 
+# Feedback form processing
 [[redirects]]
-  from = "/processing/*"
-  to = "/#processing"
+  from = "/api/feedback"
+  to = "/.netlify/functions/feedback"
   status = 200
 
+# Newsletter subscription (future)
 [[redirects]]
-  from = "/results/*"
-  to = "/#results"
+  from = "/api/subscribe"
+  to = "/.netlify/functions/subscribe"
   status = 200
 
+# Error reporting endpoint
 [[redirects]]
-  from = "/demo/*"
-  to = "/#demo"
+  from = "/api/error-report"
+  to = "/.netlify/functions/error-report"
   status = 200
 
+# Health check for monitoring
 [[redirects]]
-  from = "/history/*"
-  to = "/#history"
+  from = "/api/health"
+  to = "/.netlify/functions/health"
   status = 200
 
-[[redirects]]
-  from = "/settings/*"
-  to = "/#settings"
-  status = 200
+# ==========================================
+# BUILD PROCESSING & OPTIMIZATION
+# ==========================================
 
-[[redirects]]
-  from = "/help/*"
-  to = "/#help"
-  status = 200
+[build.processing]
+  skip_processing = false
 
-[[redirects]]
-  from = "/about/*"
-  to = "/#about"
-  status = 200
+[build.processing.css]
+  bundle = false
+  minify = true
 
-# Fallback for SPA routing
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[build.processing.js]
+  bundle = false
+  minify = true
 
-# Form handling (if needed in future)
-[functions]
+[build.processing.html]
+  pretty_urls = true
 
-# Edge functions for enhanced performance
+[build.processing.images]
+  compress = true
+
+# ==========================================
+# EDGE FUNCTIONS (FUTURE ENHANCEMENT)
+# ==========================================
+
+# Edge function for adding security headers
 [[edge_functions]]
-  function = "add-headers"
+  function = "security-headers"
   path = "/*"
 
-# Plugin configuration
+# Edge function for analytics (privacy-friendly)
+[[edge_functions]]
+  function = "analytics"
+  path = "/*"
+
+# Edge function for A/B testing (future)
+[[edge_functions]]
+  function = "ab-testing"
+  path = "/"
+
+# ==========================================
+# PLUGINS CONFIGURATION
+# ==========================================
+
+# Sitemap generation
 [[plugins]]
   package = "@netlify/plugin-sitemap"
   
   [plugins.inputs]
     buildDir = "."
-    exclude = ["processing", "results", "history"]
+    exclude = [
+      "/.netlify",
+      "/node_modules",
+      "/.git",
+      "/tests",
+      "/.github"
+    ]
+    trailingSlash = true
 
-# Environment variables (configured in Netlify UI)
-# GOOGLE_ANALYTICS_ID = "G-XXXXXXXXXX"
-# SITE_URL = "https://vat-calculator-pro.netlify.app"
+# Lighthouse CI for performance monitoring
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+  [plugins.inputs]
+    audit_urls = [
+      "/",
+      "/upload/",
+      "/demo/",
+      "/help/"
+    ]
+    performance_budget = {
+      "first-contentful-paint" = "2s",
+      "largest-contentful-paint" = "2.5s",
+      "cumulative-layout-shift" = 0.1,
+      "total-blocking-time" = "300ms"
+    }
+
+# Essential Images optimization
+[[plugins]]
+  package = "netlify-plugin-image-optim"
+
+# Security scanning
+[[plugins]]
+  package = "netlify-plugin-checklinks"
+  
+  [plugins.inputs]
+    entryPoints = [
+      "*.html",
+      "upload/index.html",
+      "demo/index.html",
+      "help/index.html",
+      "about/index.html"
+    ]
+    recursive = true
+    pretty = true
+
+# ==========================================
+# MONITORING & ANALYTICS SETUP
+# ==========================================
+
+# Environment variables for monitoring (set in Netlify UI)
+# Required environment variables:
+# - GOOGLE_ANALYTICS_ID: Google Analytics 4 measurement ID
+# - SITE_URL: Production site URL
+# - CONTACT_EMAIL: Support email address
+# - ERROR_REPORTING_KEY: Error tracking service key (optional)
+# - ENVIRONMENT: production/staging/development
+
+# ==========================================
+# FUNCTIONS CONFIGURATION
+# ==========================================
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Function-specific headers
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, X-Requested-With"
+
+# ==========================================
+# SPLIT TESTING (FUTURE)
+# ==========================================
+
+# A/B testing configuration for homepage
+# [[split_tests]]
+#   path = "/"
+#   branches = [
+#     { branch = "main", percentage = 80 },
+#     { branch = "experiment-new-ui", percentage = 20 }
+#   ]
+
+# ==========================================
+# DEPLOYMENT NOTIFICATIONS
+# ==========================================
+
+# Slack notifications (configure webhook in Netlify UI)
+# Email notifications for failed builds
+# Success notifications for production deployments
+
+# ==========================================
+# BACKUP & RECOVERY
+# ==========================================
+
+# Git-based version control provides automatic backups
+# Netlify maintains deployment history for easy rollbacks
+# Critical data processing happens client-side (no server data to backup)
+
+# ==========================================
+# PERFORMANCE BUDGETS
+# ==========================================
+
+# Lighthouse performance budgets enforced via plugin
+# Custom performance monitoring via Edge Functions
+# Real User Monitoring (RUM) data collection
+
+# ==========================================
+# DOCUMENTATION LINKS
+# ==========================================
+
+# Deployment Guide: /docs/deployment.md
+# API Documentation: /docs/api.md
+# Security Policy: /SECURITY.md
+# Contributing Guide: /CONTRIBUTING.md

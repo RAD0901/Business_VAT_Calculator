@@ -1,15 +1,163 @@
-# SPA Redirects for Netlify
-/*    /index.html   200
+# ==========================================
+# VAT Calculator Pro - Advanced Redirects
+# ==========================================
+
+# Force HTTPS for all traffic
+http://vat-calculator-pro.netlify.app/* https://vat-calculator-pro.netlify.app/:splat 301!
+http://www.vat-calculator-pro.netlify.app/* https://vat-calculator-pro.netlify.app/:splat 301!
+https://www.vat-calculator-pro.netlify.app/* https://vat-calculator-pro.netlify.app/:splat 301!
+
+# Legacy URL redirects (migration from old systems)
+/calculator https://vat-calculator-pro.netlify.app/ 301
+/vat-calc https://vat-calculator-pro.netlify.app/ 301
+/excel-vat https://vat-calculator-pro.netlify.app/ 301
+/vat-tool https://vat-calculator-pro.netlify.app/ 301
+
+# ==========================================
+# API ENDPOINTS (Future-proofing)
+# ==========================================
+
+# REST API endpoints for future expansion
+/api/v1/* /.netlify/functions/:splat 200
+/api/* /.netlify/functions/:splat 200
+
+# Webhook endpoints
+/webhooks/* /.netlify/functions/webhooks/:splat 200
+
+# Authentication endpoints (future)
+/auth/* /.netlify/functions/auth/:splat 200
+
+# ==========================================
+# DOWNLOAD REDIRECTS
+# ==========================================
+
+# Sample file downloads
+/download/sample /tests/sample-data/basic-vat-sample.csv 200
+/download/basic /tests/sample-data/basic-vat-sample.csv 200
+/download/large /tests/sample-data/large-dataset-sample.csv 200
+/download/template /assets/templates/vat-template.xlsx 200
+
+# Documentation downloads
+/download/docs /docs/VAT-Calculator-Pro-Guide.pdf 200
+/download/api /docs/api.md 200
+
+# ==========================================
+# UTILITY REDIRECTS
+# ==========================================
+
+# Health check for monitoring services
+/health /.netlify/functions/health 200
+/status /.netlify/functions/health 200
+/ping /.netlify/functions/health 200
+
+# Sitemap shortcuts
+/sitemap /sitemap.xml 301
+/sitemaps /sitemap.xml 301
+
+# Robots shortcuts
+/robot /robots.txt 301
+/robots /robots.txt 301
+
+# Security policy
+/security /SECURITY.md 200
+/.well-known/security.txt /SECURITY.md 200
+
+# ==========================================
+# ASSET OPTIMIZATION REDIRECTS
+# ==========================================
+
+# Static asset optimization with proper headers
+/assets/* /assets/:splat 200
+
+# Image optimization (future WebP support)
+/assets/images/*.jpg /assets/images/:splat.webp 200
+/assets/images/*.png /assets/images/:splat.webp 200
+
+# Font optimization
+/fonts/* /assets/fonts/:splat 200
+
+# ==========================================
+# FORM SUBMISSION REDIRECTS
+# ==========================================
+
+# Contact form submissions
+/contact /.netlify/functions/contact 200
+/feedback /.netlify/functions/feedback 200
+/support /.netlify/functions/support 200
+
+# Newsletter subscription
+/subscribe /.netlify/functions/subscribe 200
+/newsletter /.netlify/functions/subscribe 200
+
+# Error reporting
+/report-error /.netlify/functions/error-report 200
+/report-bug /.netlify/functions/error-report 200
+
+# ==========================================
+# SPA ROUTING WITH CLEAN URLS
+# ==========================================
+
+# Main application pages
+/upload /upload/ 301
+/upload/* /upload/ 200
+/processing /processing/ 301
+/processing/* /processing/ 200
+/results /results/ 301
+/results/* /results/ 200
+/demo /demo/ 301
+/demo/* /demo/ 200
+/help /help/ 301
+/help/* /help/ 200
+/about /about/ 301
+/about/* /about/ 200
+/settings /settings/ 301
+/settings/* /settings/ 200
+/history /history/ 301
+/history/* /history/ 200
+
+# ==========================================
+# SECURITY REDIRECTS
+# ==========================================
 
 # Prevent access to sensitive files
-/.env*              404
-/config/*           404
-/secrets/*          404
-/*.log              404
-/node_modules/*     404
+/.env* - 404
+/config/* - 404
+/secrets/* - 404
+/*.log - 404
+/node_modules/* - 404
+/.git/* - 404
+/.github/* - 404
+/tests/* - 404
 
-# API endpoints (if implemented)
-/api/*              /api/index.html   200
+# Block admin paths
+/admin/* - 401
+/wp-admin/* - 404
+/administrator/* - 404
+/phpmyadmin/* - 404
 
-# Static asset optimization
-/assets/*           /assets/:splat    200
+# ==========================================
+# ERROR PAGE REDIRECTS
+# ==========================================
+
+# Custom error pages
+/404 /error/404.html 404
+/500 /error/500.html 500
+
+# ==========================================
+# ANALYTICS & TRACKING REDIRECTS
+# ==========================================
+
+# Privacy-friendly analytics
+/analytics /.netlify/functions/analytics 200
+/track /.netlify/functions/analytics 200
+
+# Performance monitoring
+/performance /.netlify/functions/performance 200
+/metrics /.netlify/functions/performance 200
+
+# ==========================================
+# CATCH-ALL REDIRECT (MUST BE LAST)
+# ==========================================
+
+# SPA fallback - redirect all unknown routes to index.html
+/* /index.html 200
