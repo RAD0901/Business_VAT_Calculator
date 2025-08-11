@@ -6,6 +6,61 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Redirect rules for SPA routing
+[[redirects]]
+  from = "/upload"
+  to = "/upload/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/results"
+  to = "/results/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/demo"
+  to = "/demo/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/help"
+  to = "/help/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/about"
+  to = "/about/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/settings"
+  to = "/settings/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/history"
+  to = "/history/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/processing"
+  to = "/processing/"
+  status = 301
+  force = true
+
+# Catch-all for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]
