@@ -509,3 +509,4 @@ This README serves as the definitive guide for building VAT Calculator Pro. Each
 **For Developers**: Reference this document throughout development to ensure consistency with requirements and specifications.
 
 **For Stakeholders**: This document defines the complete scope and functionality of the application.# Business_VAT_Calculator
+# vat_calculator_pro
