@@ -341,14 +341,14 @@ function exportToExcel() {
         return;
     }
 
-    // Basic Excel export using XLSX library
+    // Basic Excel export using XLSX library with properly formatted monetary values
     const ws = XLSX.utils.json_to_sheet([{
-        'Total Input VAT': processedData.totalInputVAT,
-        'Total Output VAT': processedData.totalOutputVAT,
-        'VAT Payable': processedData.vatPayable,
-        'Sales Excluding VAT': processedData.salesExcludingVAT,
-        'Sales Including VAT': processedData.salesIncludingVAT,
-        'Zero Rated Sales': processedData.zeroRatedSales
+        'Total Input VAT': parseFloat(processedData.totalInputVAT).toFixed(2),
+        'Total Output VAT': parseFloat(processedData.totalOutputVAT).toFixed(2),
+        'VAT Payable': parseFloat(processedData.vatPayable).toFixed(2),
+        'Sales Excluding VAT': parseFloat(processedData.salesExcludingVAT).toFixed(2),
+        'Sales Including VAT': parseFloat(processedData.salesIncludingVAT).toFixed(2),
+        'Zero Rated Sales': parseFloat(processedData.zeroRatedSales).toFixed(2)
     }]);
 
     const wb = XLSX.utils.book_new();
